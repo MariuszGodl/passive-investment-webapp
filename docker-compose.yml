@@ -1,0 +1,35 @@
+services:
+  api:
+    build: ./services/api
+    container_name: api
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build: ./services/api
+    command: celery -A app.tasks.worker worker --loglevel=info
+    volumes:
+      - ./services/api:/app
+    depends_on:
+      - redis
+      - db
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
