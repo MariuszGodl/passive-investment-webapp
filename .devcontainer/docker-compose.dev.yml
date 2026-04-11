@@ -1,6 +1,8 @@
 services:
   api:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
     volumes:
       - .:/src:cached
-      - ./services/api:/app
     command: sleep infinity

@@ -6,7 +6,11 @@
   ],
   "service": "api",
   "workspaceFolder": "/src",
-  "postStartCommand": "bash /src/.devcontainer/post-start.sh",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/pre-commit:2": {},
+  },
+  "postCreateCommand": "git config --global --add safe.directory /src",
+  "postStartCommand": "bash -c 'set -a && source .env 2>/dev/null || true && set +a && pre-commit install'",
   "customizations": {
     "vscode": {
       "extensions": [
