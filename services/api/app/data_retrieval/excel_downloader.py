@@ -7,7 +7,9 @@ from typing import Optional
 
 import aiohttp
 import pandas as pd
-import xlrd  # Ensure this is installed for .xls support
+# xlrd is required for reading .xls files (older Excel format)
+# It's imported here to ensure pandas can use it as an engine
+import xlrd  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +76,13 @@ class ExcelDownloader:
         """
 
         try:
-            df = pd.read_excel(file_path, sheet_name=sheet_name)
+            # Determine engine based on file extension
+            if file_path.suffix.lower() == '.xls':
+                engine = 'xlrd'
+            else:
+                engine = None  # Let pandas auto-detect
+
+            df = pd.read_excel(file_path, sheet_name=sheet_name, engine=engine)
             logger.info(f"Read {len(df)} rows from {file_path.name}")
             return df
         except Exception as e:
