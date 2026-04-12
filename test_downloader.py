@@ -13,11 +13,10 @@ logging.basicConfig(
 
 async def main():
     """Test the Excel downloader."""
-
     downloader = ExcelDownloader(storage_dir="data/excel")
 
     test_url = "https://www.gov.pl/attachment/26c05556-a312-47be-aa8d-ec4790b12b83"
-    
+
     print("\n" + "=" * 60)
     print("Testing Excel Downloader")
     print("=" * 60)
@@ -38,4 +37,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
