@@ -3,7 +3,7 @@
 import asyncio
 import logging
 
-from services.api.app.data_retrieval.excel_downloader import ExcelDownloader
+from data.excel_downloader.excel_downloader import ExcelDownloader
 
 logging.basicConfig(
     level=logging.INFO,
