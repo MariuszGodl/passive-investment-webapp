@@ -2,3 +2,4 @@
 [Mariusz Godlewski] Added parsing xlsx lokaty to csv
 [Mariusz Godlewski] Added pre-commit hooks to repository
 [Mariusz Godlewski] Added .gitignore for Python and editor artifacts
+[Mariusz Godlewski] Added docker-compose with PostgreSQL 17 database
