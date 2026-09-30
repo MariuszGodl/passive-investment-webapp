@@ -25,7 +25,7 @@ def insert_banks(conn, df: pd.DataFrame):
                 INSERT INTO bank (code, name)
                 VALUES (:code, :name)
             """),
-            {"code": row["bank_code"], "name": "Brak"},
+            {"code": row["bank_code"], "name": f"Brak: {row['bank_code']}"},
         )
     print(f"Inserted {len(banks_df)} banks")
 
