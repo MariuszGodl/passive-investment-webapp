@@ -5,3 +5,4 @@
 [Mariusz Godlewski] Added docker-compose with PostgreSQL 17 database
 [Mariusz Godlewski] Added DB schema: tables (bank, product, offer_variant), enum types (product_type, rate_type, term_unit, capitalization), and indexes for active offers, interest rate, term days, and FK joins
 [Mariusz Godlewski] Added script that preprocess the data to the db format
+[Mariusz Godlewski] Added alembic for DB migrations and converted initial schema to alembic migration

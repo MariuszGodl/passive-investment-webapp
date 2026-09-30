@@ -1,8 +1,28 @@
--- 001_create_tables.sql
--- Creates the core schema for the passive investment app.
+"""create tables
 
-BEGIN;
+Revision ID: 2c30aa35fb1e
+Revises:
+Create Date: 2026-09-30 19:34:38.584147
 
+"""
+
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = "2c30aa35fb1e"
+down_revision: Union[str, Sequence[str], None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    op.execute(
+        sa.text("""
 -- ============================================================
 -- ENUM TYPES
 -- ============================================================
@@ -99,5 +119,21 @@ CREATE INDEX idx_product_bank_id
 -- Offer → product join path
 CREATE INDEX idx_offer_variant_product_id
     ON offer_variant (product_id);
+    """)
+    )
 
-COMMIT;
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    op.execute(
+        sa.text("""
+DROP TABLE IF EXISTS offer_variant;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS bank;
+
+DROP TYPE IF EXISTS capitalization;
+DROP TYPE IF EXISTS term_unit;
+DROP TYPE IF EXISTS rate_type;
+DROP TYPE IF EXISTS product_type;
+    """)
+    )
