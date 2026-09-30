@@ -18,7 +18,10 @@ def load_and_clean_csv(csv_path: str) -> pd.DataFrame:
 
 def insert_banks(conn, df: pd.DataFrame):
     """Extracts unique banks and inserts them into the database."""
+    initial_count = len(df)
     banks_df = df[["bank_code"]].drop_duplicates()
+    dropped_count = initial_count - len(banks_df)
+    print(f"Dropped {dropped_count} duplicate banks")
     for _, row in banks_df.iterrows():
         conn.execute(
             text("""
@@ -32,9 +35,12 @@ def insert_banks(conn, df: pd.DataFrame):
 
 def insert_products(conn, df: pd.DataFrame):
     """Extracts unique products and inserts them into the database."""
+    initial_count = len(df)
     products_df = df[
         ["bank_code", "product_code", "product_name", "product_type"]
-    ].drop_duplicates()
+    ].drop_duplicates(subset=["bank_code", "product_code"])
+    dropped_count = initial_count - len(products_df)
+    print(f"Dropped {dropped_count} duplicate products")
     for _, row in products_df.iterrows():
         conn.execute(
             text("""
@@ -55,7 +61,13 @@ def insert_products(conn, df: pd.DataFrame):
 def insert_variants(conn, df: pd.DataFrame):
     """Inserts or updates offer variants into the database."""
     print("Inserting variants...")
-    for _, row in df.iterrows():
+    initial_count = len(df)
+    variants_df = df.drop_duplicates(
+        subset=["bank_code", "product_code", "variant_code"]
+    )
+    dropped_count = initial_count - len(variants_df)
+    print(f"Dropped {dropped_count} duplicate variants")
+    for _, row in variants_df.iterrows():
         conn.execute(
             text("""
                 INSERT INTO offer_variant (
@@ -90,7 +102,7 @@ def insert_variants(conn, df: pd.DataFrame):
                 "additional_condition": row["additional_condition"],
             },
         )
-    print(f"Inserted/Updated {len(df)} variants")
+    print(f"Inserted/Updated {len(variants_df)} variants")
 
 
 def main():
