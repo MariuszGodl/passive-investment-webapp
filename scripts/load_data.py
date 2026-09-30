@@ -18,7 +18,7 @@ def load_and_clean_csv(csv_path: str) -> pd.DataFrame:
 
 def insert_banks(conn, df: pd.DataFrame):
     """Extracts unique banks and inserts them into the database."""
-    banks_df = df[["bank_code"]]
+    banks_df = df[["bank_code"]].drop_duplicates()
     for _, row in banks_df.iterrows():
         conn.execute(
             text("""
@@ -32,7 +32,9 @@ def insert_banks(conn, df: pd.DataFrame):
 
 def insert_products(conn, df: pd.DataFrame):
     """Extracts unique products and inserts them into the database."""
-    products_df = df[["bank_code", "product_code", "product_name", "product_type"]]
+    products_df = df[
+        ["bank_code", "product_code", "product_name", "product_type"]
+    ].drop_duplicates()
     for _, row in products_df.iterrows():
         conn.execute(
             text("""
