@@ -9,3 +9,4 @@
 [Mariusz Godlewski] Added load data script to populate db with processed lokaty warianty (raises errors on conflict)
 [Mariusz Godlewski] Added script to clear/reset the database
 [Mariusz Godlewski] Added hadolint pre-commit hook to lint Dockerfiles
+[Mariusz Godlewski] Added GitHub Actions CI pipeline and changelog format check
