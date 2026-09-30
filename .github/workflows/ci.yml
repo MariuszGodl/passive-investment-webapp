@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    name: Lint & Pre-commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1
+
+  check-changelog:
+    name: Check Changelog Update
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to fetch history for diff
+
+      - name: Validate Changelog Format
+        run: |
+          # Fetch the target branch to compare against
+          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
+
+          # Extract only the added lines in changelog.md, ignoring the "+++" header line
+          ADDED_LINES=$(git diff ${{ github.base_ref }}...HEAD -- changelog.md | grep '^+[^+]')
+
+          # 1. Check if there are any additions
+          if [ -z "$ADDED_LINES" ]; then
+            echo "::error file=changelog.md::No changelog update found. Please add an entry to changelog.md for this PR."
+            exit 1
+          fi
+
+          # 2. Validate the format of the newly added lines
+          # We expect the format: "[<user>] comment"
+          EXIT_CODE=0
+
+          while IFS= read -r line; do
+            # Strip the leading '+' added by git diff
+            ENTRY="${line#+}"
+
+            # Skip empty lines if any
+            if [ -z "$ENTRY" ]; then
+              continue
+            fi
+
+            # Use bash regex matching
+            if [[ ! "$ENTRY" =~ ^\[[^]]+\][[:space:]].+ ]]; then
+              echo "::error file=changelog.md::Invalid changelog format: '$ENTRY'. Expected format is '[<user>] comment'"
+              EXIT_CODE=1
+            fi
+          done <<< "$ADDED_LINES"
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "Changelog is valid"
+          fi
+
+          exit $EXIT_CODE
