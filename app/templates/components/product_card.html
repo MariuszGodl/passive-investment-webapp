@@ -1,163 +1,53 @@
 <a
     href="{{ url_for('product_detail', product_id=product.id) }}"
-    class="
-        bg-white
-        rounded-xl
-        p-10
-        shadow-sm
-        hover:shadow-xl
-        transition-all
-        border
-        border-outline-variant/10
-        flex
-        flex-col
-        md:flex-row
-        md:items-center
-        justify-between
-        group
-        relative
-        overflow-hidden
-        min-h-[180px]
-        cursor-pointer
-        block
-    "
+    class="bg-white rounded-xl p-10 shadow-sm hover:shadow-xl transition-all border border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between group relative overflow-hidden min-h-[180px] cursor-pointer block"
 >
-
     <!-- Top accent -->
     <div
-        class="
-            absolute
-            left-0
-            top-0
-            w-1
-            md:w-full
-            h-full
-            md:h-1.5
-            bg-primary/20
-            group-hover:bg-primary
-            transition-colors
-        "
+        class="absolute left-0 top-0 w-1 md:w-full h-full md:h-1.5 bg-primary/20 group-hover:bg-primary transition-colors"
     ></div>
-
 
     <!-- Product information -->
     <div class="flex-1">
-
         <div class="flex items-center space-x-3 mb-3">
-
-            <p
-                class="
-                    text-[11px]
-                    font-bold
-                    text-primary
-                    uppercase
-                    tracking-widest
-                "
-            >
-                {{ product.institution_name }}
-            </p>
+            <p class="text-[11px] font-bold text-primary uppercase tracking-widest">{{ product.institution_name }}</p>
 
             {% if product.badge %}
 
-                <div class="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">
-
-                    <span class="text-[10px] font-extrabold uppercase">
-                        {{ product.badge }}
-                    </span>
-
-                </div>
+            <div class="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">
+                <span class="text-[10px] font-extrabold uppercase"> {{ product.badge }} </span>
+            </div>
 
             {% endif %}
-
         </div>
 
-
-        <h3
-            class="
-                text-2xl
-                font-extrabold
-                text-on-surface
-                mb-3
-                leading-tight
-                font-headline
-            "
-        >
-            {{ product.name }}
-        </h3>
-
+        <h3 class="text-2xl font-extrabold text-on-surface mb-3 leading-tight font-headline">{{ product.name }}</h3>
 
         <div class="flex flex-wrap items-center gap-6 text-sm text-slate-500 mb-4">
-
             <span class="flex items-center font-medium">
-
-                <span class="material-symbols-outlined text-lg mr-2 text-primary">
-                    calendar_today
-                </span>
+                <span class="material-symbols-outlined text-lg mr-2 text-primary"> calendar_today </span>
 
                 {{ product.duration }}
-
             </span>
-
         </div>
 
-
-        <p class="text-xs text-slate-400 font-medium">
-            {{ product.requirement }}
-        </p>
-
+        <p class="text-xs text-slate-400 font-medium">{{ product.requirement }}</p>
     </div>
-
 
     <!-- Return -->
     <div
-        class="
-            mt-8
-            md:mt-0
-            md:ml-10
-            md:pl-10
-            md:border-l
-            border-slate-100
-            flex
-            flex-col
-            items-start
-            md:items-end
-            shrink-0
-        "
+        class="mt-8 md:mt-0 md:ml-10 md:pl-10 md:border-l border-slate-100 flex flex-col items-start md:items-end shrink-0"
     >
-
         <div class="flex flex-row items-center">
-
             <div
-                class="
-                    bg-primary
-                    text-on-primary
-                    px-6
-                    py-4
-                    rounded-2xl
-                    font-bold
-                    shadow-lg
-                    shadow-primary/10
-                    flex
-                    flex-col
-                    items-center
-                    md:items-end
-                    min-w-[200px]
-                "
+                class="bg-primary text-on-primary px-6 py-4 rounded-2xl font-bold shadow-lg shadow-primary/10 flex flex-col items-center md:items-end min-w-[200px]"
             >
-
-                <span class="text-2xl tracking-tight">
-                    + {{ product.interest_rate }}%
-                </span>
+                <span class="text-2xl tracking-tight"> + {{ product.interest_rate }}% </span>
 
                 <div class="w-full h-px bg-white/20 my-2"></div>
 
-                <span class="text-sm opacity-90">
-                    estimated return
-                    {{ product.estimated_profit }} PLN
-                </span>
-
+                <span class="text-sm opacity-90"> estimated return {{ product.estimated_profit }} PLN </span>
             </div>
-
 
             <!-- Favorite -->
             <button
@@ -166,30 +56,12 @@
                 class="heart-btn shrink-0 ml-[20px] relative z-10"
                 onclick="event.preventDefault(); toggleHeart(this)"
             >
-
-                <span class="material-symbols-outlined text-primary text-4xl">
-                    favorite
-                </span>
-
+                <span class="material-symbols-outlined text-primary text-4xl"> favorite </span>
             </button>
-
         </div>
 
-
-        <p
-            class="
-                mt-4
-                text-[11px]
-                text-on-surface
-                font-semibold
-                text-center
-                w-full
-                min-w-[200px]
-            "
-        >
+        <p class="mt-4 text-[11px] text-on-surface font-semibold text-center w-full min-w-[200px]">
             {{ product.payout_description }}
         </p>
-
     </div>
-
 </a>
