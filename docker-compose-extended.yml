@@ -9,3 +9,16 @@ services:
       ADMINER_DEFAULT_SERVER: db
     depends_on:
       - db
+
+  data-loader:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.passive-investment-app
+    container_name: passive-investment-data-loader
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://app:app@db:5432/passive_investment"
+    volumes:
+      - .:/app
+    entrypoint: ["uv", "run", "python", "scripts/init_dev_db.py"]

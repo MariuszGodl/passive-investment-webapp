@@ -55,7 +55,10 @@ def main():
     )
     args = parser.parse_args()
 
-    db_url = "postgresql+psycopg2://app:app@localhost:5432/passive_investment"
+    db_url = os.environ.get(
+        "DATABASE_URL",
+        "postgresql+psycopg2://app:app@localhost:5432/passive_investment",
+    )
     engine = get_db_engine(db_url)
 
     if args.reset:

@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -106,7 +108,10 @@ def insert_variants(conn, df: pd.DataFrame):
 
 
 def main():
-    db_url = "postgresql+psycopg2://app:app@localhost:5432/passive_investment"
+    db_url = os.environ.get(
+        "DATABASE_URL",
+        "postgresql+psycopg2://app:app@localhost:5432/passive_investment",
+    )
     csv_path = "data/preprocessed/preprocessed_lokaty_warianty.csv"
 
     df = load_and_clean_csv(csv_path)

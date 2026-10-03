@@ -14,3 +14,4 @@
 [Mariusz Godlewski] Added parametrized pytest tests for preprocess_lokaty script
 [Mariusz Godlewski] Added pytest test execution to GitHub Actions CI pipeline
 [Mariusz Godlewski] Containerized FastAPI application and enabled BuildKit optimizations
+[Mariusz Godlewski] Added database auto-initialization (reset, convert, preprocess, load) to docker-compose-extended.yml
