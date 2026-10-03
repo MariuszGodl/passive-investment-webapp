@@ -63,3 +63,6 @@ dmypy.json
 # Operating System files
 .DS_Store
 Thumbs.db
+
+# Unprocesses Stitch files
+app/unprocessed-stitch/

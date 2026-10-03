@@ -1,0 +1,132 @@
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm border-b border-outline-variant/15">
+
+    <div class="flex justify-between items-center h-20 px-8 w-full max-w-screen-2xl mx-auto">
+
+        <!-- Logo -->
+        <a
+            href="{{ url_for('invest_page') }}"
+            class="text-2xl font-bold tracking-tight text-primary font-headline"
+        >
+            SafeVesting
+        </a>
+
+        <!-- Navigation -->
+        <div class="hidden md:flex items-center space-x-8">
+
+            <a
+                href="{{ url_for('invest_page') }}"
+                class="
+                    text-primary
+                    font-semibold
+                    border-b-2
+                    border-primary
+                    pb-1
+                    text-sm
+                    font-label
+                "
+            >
+                Invest
+            </a>
+
+            <a
+                href="#"
+                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+            >
+                Favorites
+            </a>
+
+            <a
+                href="#"
+                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+            >
+                My investments
+            </a>
+
+        </div>
+
+        <!-- Profile -->
+        <div class="flex items-center space-x-4">
+
+            <div class="text-right hidden sm:block">
+                <p class="text-sm font-semibold text-on-surface">
+                    Jan Kowalski
+                </p>
+            </div>
+
+            <div class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+                <img
+                    alt="User avatar"
+                    class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyjgRsjknCfG7Dg4-VWKWXvoFJbuqiO3eJ7tcHquX_smJ7OUAhDlK0Jk7xi8dq7zYH1CgxC6o0_MVp2ICBUgF3QywWIAJH8c6ZvCpigf5RM36L3yX7qaGrjEOMTzSGLC-5rAg4FePN-w28F3SANyjK15wCXn2pnRccREsmKpi6EIzwLGeOqeGq_EFdmTFxwKyHVGHDL_N7vJFkJRxsb_TD1T2RbQt_dq6v7sj21-HfGgRtnJlJ_FSa3S5y8jObDJfwM4IBUHuvlfPa"
+                >
+            </div>
+
+            <!-- Menu -->
+            <div class="relative group/menu">
+
+                <button
+                    aria-label="Open menu"
+                    class="p-2 hover:bg-slate-100 rounded-full transition-colors ml-2"
+                >
+                    <span class="material-symbols-outlined">
+                        menu
+                    </span>
+                </button>
+
+                <div
+                    class="
+                        absolute
+                        right-0
+                        top-full
+                        mt-2
+                        w-56
+                        bg-white
+                        rounded-xl
+                        shadow-xl
+                        border
+                        border-outline-variant/10
+                        py-2
+                        opacity-0
+                        invisible
+                        group-hover/menu:opacity-100
+                        group-hover/menu:visible
+                        transition-all
+                        duration-200
+                        z-50
+                        transform
+                        origin-top-right
+                        scale-95
+                        group-hover/menu:scale-100
+                    "
+                >
+
+                    <a
+                        href="#"
+                        class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary"
+                    >
+                        Account settings
+                    </a>
+
+                    <a
+                        href="#"
+                        class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary"
+                    >
+                        Second option
+                    </a>
+
+                    <a
+                        href="#"
+                        class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary"
+                    >
+                        Third option
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
