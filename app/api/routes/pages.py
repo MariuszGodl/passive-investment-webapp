@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 
+from app.schemas.user import User
+
 router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
@@ -42,6 +44,13 @@ PRODUCTS = [
     },
 ]
 
+app_user: User | None = None
+app_user = User(
+    name="Piotr",
+    surname="Cherek",
+    email="x"
+)
+
 
 @router.get("/", name="invest_page")
 async def invest_page(request: Request):
@@ -50,7 +59,38 @@ async def invest_page(request: Request):
         name="pages/dashboard.html",
         context={
             "products": PRODUCTS,
+            "user": None,
         },
+    )
+
+
+@router.get("/auth", name="invest_page_user")
+async def invest_page_user(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="pages/dashboard.html",
+        context={
+            "products": PRODUCTS,
+            "user": app_user,
+        },
+    )
+
+
+@router.get("/login", name="login")
+async def login(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="pages/login.html",
+        context={},
+    )
+
+
+@router.get("/create_account", name="create_account")
+async def create_account(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="pages/create_account.html",
+        context={},
     )
 
 
@@ -69,5 +109,6 @@ async def product_detail(request: Request, product_id: int):
         name="pages/product_detail.html",
         context={
             "product": product,
+            "user": app_user,
         },
     )
