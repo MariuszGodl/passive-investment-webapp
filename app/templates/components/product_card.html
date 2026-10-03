@@ -50,13 +50,18 @@
             </div>
 
             <!-- Favorite -->
+            {% set is_favourite = user and product.id in user.favourites %}
             <button
                 type="button"
-                aria-label="Add to favorites"
+                aria-label="{{ 'Remove from favorites' if is_favourite else 'Add to favorites' }}"
                 class="heart-btn shrink-0 ml-[20px] relative z-10"
-                onclick="event.preventDefault(); toggleHeart(this)"
+                onclick="event.preventDefault(); toggleFavourite(event, this, {{ product.id }})"
             >
-                <span class="material-symbols-outlined text-primary text-4xl"> favorite </span>
+                <span
+                    class="material-symbols-outlined text-primary text-4xl {% if is_favourite %}filled{% endif %}"
+                >
+                    favorite
+                </span>
             </button>
         </div>
 
@@ -65,3 +70,35 @@
         </p>
     </div>
 </a>
+
+<script>
+    async function toggleFavourite(event, btn, productId) {
+        event.stopPropagation();
+
+        try {
+            const response = await fetch(`/api/favourites/${productId}`, {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update favourite");
+            }
+
+            const data = await response.json();
+
+            const heartIcon = btn.querySelector(".material-symbols-outlined");
+
+            heartIcon.classList.toggle("filled", data.is_favourite);
+
+            const actionText = data.is_favourite
+                ? "Remove from favorites"
+                : "Add to favorites";
+
+            btn.setAttribute("title", actionText);
+            btn.setAttribute("aria-label", actionText);
+
+        } catch (error) {
+            console.error("Could not update favourite:", error);
+        }
+    }
+</script>

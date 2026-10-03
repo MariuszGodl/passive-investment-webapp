@@ -107,3 +107,20 @@ async def product_detail(request: Request, product_id: int):
             "user": app_user,
         },
     )
+
+
+@router.post("/api/favorites/{product_id}", name="toggle_favorite")
+async def toggle_favorite(product_id: int):
+    is_favorite = False
+
+    if product_id in app_user.favorites:
+        app_user.favorites.remove(product_id)
+    else:
+        app_user.favorites.append(product_id)
+        is_favorite = True
+
+    return {
+        "product_id": product_id,
+        "is_favorite": is_favorite,
+        "favorites": app_user.favorites,
+    }

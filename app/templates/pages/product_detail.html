@@ -23,11 +23,7 @@
                             class="heart-btn shrink-0 ml-[20px] relative z-10"
                             onclick="event.preventDefault(); toggleHeart(this)"
                         >
-                            <span
-                                class="material-symbols-outlined text-primary text-5xl"
-                                style='font-variation-settings: "FILL" 0;'
-                                >favorite</span
-                            >
+                            <span class="material-symbols-outlined text-primary text-4xl"> favorite </span>
                         </button>
                     </div>
                 </div>
@@ -233,21 +229,6 @@
         transform: scale(1.3);
         background: #4c0080;
     }
-    .heart-tooltip {
-        visibility: hidden;
-        opacity: 0;
-        transition:
-            opacity 0.2s,
-            visibility 0.2s;
-        bottom: 120%;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-    }
-    .heart-btn:hover .heart-tooltip {
-        visibility: visible;
-        opacity: 1;
-    }
     .timeline-tooltip {
         visibility: hidden;
         opacity: 0;
@@ -275,33 +256,17 @@
         visibility: visible;
         opacity: 1;
     }
-    .timeline-tooltip::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border-width: 6px;
-        border-style: solid;
-        border-color: white transparent transparent transparent;
-    }
-    .nav-dropdown {
-        display: none;
-    }
-    .group:hover .nav-dropdown {
-        display: block;
-    }
 </style>
 
 {% endblock %} {% block extra_scripts %}
 
 <script>
-    function toggleFilter(contentId, chevronId) {
-        const content = document.getElementById(contentId);
-        const chevron = document.getElementById(chevronId);
-
-        content.classList.toggle("expanded");
-        chevron.classList.toggle("rotate-180");
+    function toggleHeart(btn) {
+        const heartIcon = btn.querySelector('.material-symbols-outlined');
+        const isFilled = heartIcon.classList.toggle('filled');
+        const actionText = isFilled ? 'Remove from favorites' : 'Add to favorites';
+        btn.setAttribute('title', actionText);
+        btn.setAttribute('aria-label', actionText);
     }
 </script>
 
