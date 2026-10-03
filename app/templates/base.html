@@ -1,22 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>
         {% block title %}
-        Passive Investment
+        SafeVesting
         {% endblock %}
     </title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:FILL@0;1&display=swap"
+        rel="stylesheet"
+    >
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4c0080",
+                        "primary-container": "#6a0dad",
+
+                        "surface": "#f9f9f9",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eeeeee",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-container-highest": "#e2e2e2",
+
+                        "on-surface": "#1b1b1b",
+                        "on-surface-variant": "#4d4353",
+
+                        "outline": "#7e7384",
+                        "outline-variant": "#cfc2d5",
+
+                        "on-primary": "#ffffff"
+                    },
+
+                    fontFamily: {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    },
+
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24;
+        }
+
+        .material-symbols-outlined.filled {
+            font-variation-settings:
+                'FILL' 1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        {% block extra_styles %}{% endblock %}
+    </style>
 </head>
-<body>
+
+<body class="bg-surface text-on-surface min-h-screen">
     {% include "components/navbar.html" %}
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+
+    {% block content %}
+    {% endblock %}
+
     <script src="{{ url_for('static', path='js/main.js') }}"></script>
+
     {% block extra_scripts %}
     {% endblock %}
 </body>

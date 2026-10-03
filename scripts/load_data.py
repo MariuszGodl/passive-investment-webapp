@@ -1,6 +1,6 @@
+import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, text
-import numpy as np
 
 
 def get_db_engine(db_url: str):
@@ -112,11 +112,10 @@ def main():
     df = load_and_clean_csv(csv_path)
     engine = get_db_engine(db_url)
 
-    with engine.connect() as conn:
-        with conn.begin():
-            insert_banks(conn, df)
-            insert_products(conn, df)
-            insert_variants(conn, df)
+    with engine.connect() as conn, conn.begin():
+        insert_banks(conn, df)
+        insert_products(conn, df)
+        insert_variants(conn, df)
 
 
 if __name__ == "__main__":

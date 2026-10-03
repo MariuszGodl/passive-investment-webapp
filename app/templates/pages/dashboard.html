@@ -4,28 +4,416 @@
 SafeVesting - Invest
 {% endblock %}
 
+
 {% block content %}
-<section>
-    <h1>Find the right investment</h1>
-    <div>
-        {% for product in products %}
-            <article>
-                <h2>
-                    {{ product.name }}
-                </h2>
-                <p>
-                    Type: {{ product.type }}
-                </p>
-                <p>
-                    Interest rate:
-                    {{ product.interest_rate }}
-                </p>
-                <p>
-                    Term:
-                    {{ product.term}}
-                </p>
-            </article>
-        {% endfor %}
-    </div>
-</section>
+
+<main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+
+    <!-- Hero -->
+    <section class="text-center mb-16">
+
+        <h1
+            class="
+                text-4xl
+                md:text-5xl
+                font-extrabold
+                text-primary
+                mb-4
+                tracking-tight
+                font-headline
+            "
+        >
+            Manage your finances
+        </h1>
+
+        <p class="max-w-lg mx-auto text-lg text-[#000000]">
+            We monitor, analyze, and deliver the best solutions.
+        </p>
+
+    </section>
+
+
+    <!-- Investment configurator -->
+    <section
+        class="
+            bg-surface-container-lowest
+            rounded-xl
+            p-8
+            shadow-sm
+            border
+            border-outline-variant/10
+            max-w-3xl
+            mx-auto
+            mb-12
+        "
+    >
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+
+            <!-- Horizon -->
+            <div class="space-y-4">
+
+                <label
+                    class="
+                        text-[13px]
+                        font-bold
+                        text-[#000000]
+                        uppercase
+                        tracking-widest
+                        block
+                    "
+                >
+                    Investment horizon
+                </label>
+
+                <div class="relative">
+
+                    <input
+                        id="input-horizon"
+                        type="number"
+                        min="1"
+                        value="3"
+                        class="
+                            w-full
+                            bg-transparent
+                            border-b-2
+                            border-surface-container-highest
+                            focus:border-primary
+                            focus:ring-0
+                            py-4
+                            text-xl
+                            font-medium
+                            text-on-surface
+                            text-center
+                            md:text-left
+                            pr-28
+                        "
+                    >
+
+                    <span
+                        id="suffix-horizon"
+                        class="
+                            absolute
+                            right-6
+                            top-4
+                            text-xl
+                            font-medium
+                            text-on-surface
+                            pointer-events-none
+                        "
+                    >
+                        months
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Amount -->
+            <div class="space-y-4">
+
+                <label
+                    class="
+                        text-[13px]
+                        font-bold
+                        text-[#000000]
+                        uppercase
+                        tracking-widest
+                        block
+                    "
+                >
+                    Investment amount
+                </label>
+
+                <div class="relative">
+
+                    <input
+                        id="input-amount"
+                        type="number"
+                        min="1"
+                        value="10000"
+                        class="
+                            w-full
+                            bg-transparent
+                            border-b-2
+                            border-surface-container-highest
+                            focus:border-primary
+                            focus:ring-0
+                            py-4
+                            text-xl
+                            font-medium
+                            text-on-surface
+                            text-center
+                            md:text-left
+                            pr-16
+                        "
+                    >
+
+                    <span
+                        class="
+                            absolute
+                            right-6
+                            top-4
+                            text-xl
+                            font-medium
+                            text-on-surface
+                            pointer-events-none
+                        "
+                    >
+                        PLN
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Filters -->
+        <div class="space-y-6">
+
+            <div class="border-b border-surface-container-highest">
+
+                <button
+                    type="button"
+                    class="w-full py-4 flex justify-between items-center"
+                    onclick="toggleFilter('product-type-content', 'product-type-chevron')"
+                >
+
+                    <span
+                        class="
+                            text-[13px]
+                            font-bold
+                            text-[#000000]
+                            uppercase
+                            tracking-widest
+                        "
+                    >
+                        Investment products
+                    </span>
+
+                    <span
+                        id="product-type-chevron"
+                        class="material-symbols-outlined"
+                    >
+                        expand_more
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="product-type-content"
+                    class="filter-content px-1 pb-4"
+                >
+
+                    <div class="flex flex-col space-y-3 pt-2">
+
+                        <label class="flex items-center space-x-3">
+                            <input
+                                type="checkbox"
+                                checked
+                                class="w-5 h-5 rounded border-outline-variant text-primary"
+                            >
+
+                            <span class="text-on-surface font-medium">
+                                Bank deposits requiring a bank account
+                            </span>
+                        </label>
+
+
+                        <label class="flex items-center space-x-3">
+                            <input
+                                type="checkbox"
+                                checked
+                                class="w-5 h-5 rounded border-outline-variant text-primary"
+                            >
+
+                            <span class="text-on-surface font-medium">
+                                Bank deposits without requiring a bank account
+                            </span>
+                        </label>
+
+
+                        <label class="flex items-center space-x-3">
+                            <input
+                                id="checkbox-bonds"
+                                type="checkbox"
+                                checked
+                                class="w-5 h-5 rounded border-outline-variant text-primary"
+                            >
+
+                            <span class="text-on-surface font-medium">
+                                Treasury bonds
+                            </span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="border-b border-surface-container-highest">
+
+                <button
+                    type="button"
+                    class="w-full py-4 flex justify-between items-center"
+                    onclick="toggleFilter('payout-content', 'payout-chevron')"
+                >
+
+                    <span
+                        class="
+                            text-[13px]
+                            font-bold
+                            text-[#000000]
+                            uppercase
+                            tracking-widest
+                        "
+                    >
+                        Interest payout method
+                    </span>
+
+                    <span
+                        id="payout-chevron"
+                        class="material-symbols-outlined"
+                    >
+                        expand_more
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="payout-content"
+                    class="filter-content px-1 pb-4"
+                >
+
+                    <div class="flex flex-col space-y-3 pt-2">
+
+                        <label class="flex items-center space-x-3">
+
+                            <input
+                                type="checkbox"
+                                checked
+                                class="w-5 h-5 rounded border-outline-variant text-primary"
+                            >
+
+                            <span class="text-on-surface font-medium">
+                                At the end of investment
+                            </span>
+
+                        </label>
+
+
+                        <label class="flex items-center space-x-3">
+
+                            <input
+                                type="checkbox"
+                                checked
+                                class="w-5 h-5 rounded border-outline-variant text-primary"
+                            >
+
+                            <span class="text-on-surface font-medium">
+                                During investment term
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Recommendations -->
+    <section class="space-y-8 max-w-5xl mx-auto">
+
+        <h2
+            class="
+                text-2xl
+                font-bold
+                text-on-surface
+                text-center
+                font-headline
+            "
+        >
+            Recommended
+        </h2>
+
+
+        <div class="flex flex-col space-y-6">
+
+            {% for product in products %}
+
+                {% include "components/product_card.html" %}
+
+            {% else %}
+
+                <div class="py-12 text-center">
+
+                    <p class="text-lg font-medium">
+                        We could not find any solutions
+                        that match your criteria.
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_styles %}
+
+<style>
+
+    .filter-content {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition:
+            max-height 0.3s ease-out,
+            opacity 0.2s ease-out;
+    }
+
+    .filter-content.expanded {
+        max-height: 800px;
+        opacity: 1;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+
+<script>
+
+    function toggleFilter(contentId, chevronId) {
+
+        const content = document.getElementById(contentId);
+        const chevron = document.getElementById(chevronId);
+
+        content.classList.toggle("expanded");
+        chevron.classList.toggle("rotate-180");
+    }
+
+</script>
+
 {% endblock %}
