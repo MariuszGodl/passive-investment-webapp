@@ -11,3 +11,4 @@
 [Mariusz Godlewski] Added hadolint pre-commit hook to lint Dockerfiles
 [Mariusz Godlewski] Added GitHub Actions CI pipeline and changelog format check
 [Mariusz Godlewski] Added docker-compose-extended.yml as an extension to include Adminer (database UI)
+[Mariusz Godlewski] Added parametrized pytest tests for preprocess_lokaty script
