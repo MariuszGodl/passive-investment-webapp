@@ -44,12 +44,7 @@ PRODUCTS = [
     },
 ]
 
-app_user: User | None = None
-app_user = User(
-    name="Piotr",
-    surname="Cherek",
-    email="x"
-)
+app_user = User(name="Piotr", surname="Cherek", email="x")
 
 
 @router.get("/", name="invest_page")
