@@ -1,0 +1,326 @@
+<!doctype html>
+<html class="light" lang="en" style="">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "surface-container-highest": "#e2e2e2",
+                            "on-tertiary-container": "#efa766",
+                            "on-secondary-fixed-variant": "#593875",
+                            "on-secondary": "#ffffff",
+                            error: "#ba1a1a",
+                            "primary-fixed-dim": "#dfb7ff",
+                            "tertiary-fixed": "#ffdcc1",
+                            "secondary-fixed": "#f1daff",
+                            "surface-container-low": "#f3f3f3",
+                            "tertiary-container": "#6d3b00",
+                            "primary-container": "#6a0dad",
+                            "on-secondary-fixed": "#2b0846",
+                            "on-secondary-container": "#654482",
+                            surface: "#f9f9f9",
+                            "on-surface": "#1b1b1b",
+                            "surface-tint": "#8333c6",
+                            "surface-container-high": "#e8e8e8",
+                            "surface-container": "#eeeeee",
+                            primary: "#4c0080",
+                            tertiary: "#4d2800",
+                            "inverse-surface": "#303030",
+                            "inverse-on-surface": "#f1f1f1",
+                            "secondary-container": "#dfb7fe",
+                            background: "#f9f9f9",
+                            outline: "#7e7384",
+                            "on-primary": "#ffffff",
+                            "on-primary-fixed-variant": "#690bac",
+                            "on-primary-fixed": "#2d004f",
+                            "surface-bright": "#f9f9f9",
+                            "secondary-fixed-dim": "#dfb7fe",
+                            "on-background": "#1b1b1b",
+                            "on-primary-container": "#d4a1ff",
+                            "on-tertiary-fixed": "#2e1500",
+                            "surface-variant": "#e2e2e2",
+                            "outline-variant": "#cfc2d5",
+                            "on-error-container": "#93000a",
+                            "tertiary-fixed-dim": "#ffb778",
+                            secondary: "#72508f",
+                            "on-tertiary": "#ffffff",
+                            "surface-container-lowest": "#ffffff",
+                            "primary-fixed": "#f1daff",
+                            "on-error": "#ffffff",
+                            "on-surface-variant": "#4d4353",
+                            "surface-dim": "#dadada",
+                            "on-tertiary-fixed-variant": "#6c3a00",
+                            "inverse-primary": "#dfb7ff",
+                            "error-container": "#ffdad6",
+                        },
+                        fontFamily: {
+                            headline: ["Manrope", "sans-serif"],
+                            body: ["Inter", "sans-serif"],
+                            label: ["Inter", "sans-serif"],
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.125rem",
+                            lg: "0.25rem",
+                            xl: "0.5rem",
+                            full: "0.75rem",
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            .material-symbols-outlined {
+                font-variation-settings:
+                    "FILL" 0,
+                    "wght" 400,
+                    "GRAD" 0,
+                    "opsz" 24;
+            }
+            .material-symbols-outlined.filled {
+                font-variation-settings: "FILL" 1;
+            }
+            body {
+                font-family: "Inter", sans-serif;
+                -webkit-font-smoothing: antialiased;
+            }
+            h1,
+            h2,
+            h3 {
+                font-family: "Manrope", sans-serif;
+            }
+            #offers-container {
+                transition: opacity 0.3s ease-in-out;
+            }
+            .results-loading {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            input[type="number"] {
+                -moz-appearance: textfield;
+            }
+        </style>
+        <meta content="web_standard" name="shell-type" />
+    </head>
+    <body class="bg-background text-on-background min-h-screen flex flex-col justify-between">
+        <div class="absolute top-6 left-6 md:top-8 md:left-8 z-20">
+            <a
+                href="/"
+                class="text-2xl font-extrabold tracking-tight text-primary font-headline hover:opacity-90 transition-opacity"
+                >SafeVesting</a
+            >
+        </div>
+        <!-- Main Content -->
+        <main class="flex-grow flex items-center justify-center py-12 px-6 w-full max-w-7xl mx-auto">
+            <div class="flex flex-col w-full">
+                <div class="relative w-full max-w-5xl mx-auto flex flex-col items-center justify-center py-6 md:py-12">
+                    <!-- Ambient Vault Glows (Contained) -->
+                    <div
+                        class="absolute -top-12 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary-fixed/20 rounded-full blur-3xl pointer-events-none -z-10"
+                    ></div>
+                    <div
+                        class="absolute top-1/3 -right-20 w-80 h-80 bg-secondary-fixed/30 rounded-full blur-3xl pointer-events-none -z-10"
+                    ></div>
+                    <!-- Page Editorial Header -->
+                    <div class="text-center max-w-xl mx-auto mb-10 px-4">
+                        <h1
+                            class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-on-surface font-headline tracking-tight leading-tight"
+                        >
+                            Sign in to SafeVesting
+                        </h1>
+                    </div>
+                    <!-- Login Container Layout: Bento Stack with Editorial Card & Key Metrics Aside -->
+                    <div class="w-full max-w-lg mx-auto flex flex-col items-center">
+                        <!-- Main Form Card (Level 2: surface-container-lowest) -->
+                        <div
+                            class="bg-surface-container-lowest rounded-xl p-8 sm:p-10 shadow-xl relative overflow-hidden flex flex-col justify-between w-full"
+                        >
+                            <!-- Subtle Top Accents -->
+                            <div
+                                class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-container to-secondary-container"
+                            ></div>
+                            <div>
+                                <div class="flex items-center justify-between mb-8">
+                                    <span
+                                        class="text-xs font-semibold uppercase tracking-widest text-outline font-label"
+                                        >Account Verification</span
+                                    >
+                                </div>
+                                <form class="space-y-6" id="loginForm" onsubmit="event.preventDefault(); handleAuth();">
+                                    <!-- Email / Identifier Field -->
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-xs font-semibold text-on-surface uppercase tracking-wider font-label"
+                                            for="signin-email"
+                                        >
+                                            Email address&nbsp;</label
+                                        >
+                                        <div class="relative">
+                                            <input
+                                                class="w-full bg-surface-container-low text-on-surface placeholder:text-outline text-sm rounded-lg px-4 py-3.5 transition-all outline-none focus:bg-surface-container-lowest focus:shadow-md focus:ring-2 focus:ring-primary/80"
+                                                id="signin-email"
+                                                placeholder="name@example.com"
+                                                required=""
+                                                type="text"
+                                            />
+                                            <span
+                                                class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-outline text-lg pointer-events-none"
+                                            >
+                                                alternate_email
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!-- Password Field -->
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <label
+                                                class="block text-xs font-semibold text-on-surface uppercase tracking-wider font-label"
+                                                for="signin-password"
+                                            >
+                                                Password
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input
+                                                class="w-full bg-surface-container-low text-on-surface placeholder:text-outline text-sm rounded-lg px-4 py-3.5 pr-12 transition-all outline-none focus:bg-surface-container-lowest focus:shadow-md focus:ring-2 focus:ring-primary/80"
+                                                id="signin-password"
+                                                placeholder="••••••••••••"
+                                                required=""
+                                                type="password"
+                                            />
+                                            <button
+                                                aria-label="Toggle password visibility"
+                                                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors p-1 flex items-center justify-center"
+                                                id="togglePasswordBtn"
+                                                onclick="togglePasswordVisibility()"
+                                                type="button"
+                                            >
+                                                <span class="material-symbols-outlined text-lg" id="pwdEyeIcon"
+                                                    >visibility</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Options: Remember Me -->
+                                    <div class="flex items-center justify-between pt-1">
+                                        <label class="flex items-center gap-3 cursor-pointer group select-none">
+                                            <input
+                                                checked=""
+                                                class="w-4 h-4 rounded text-primary focus:ring-primary/40 border-0 bg-surface-container-high transition-colors cursor-pointer"
+                                                id="remember-device"
+                                                type="checkbox"
+                                                placeholder="on"
+                                                value=""
+                                            />
+                                            <span
+                                                class="text-xs text-on-surface-variant font-body group-hover:text-on-surface transition-colors"
+                                            >
+                                                Remember me</span
+                                            >
+                                        </label>
+                                    </div>
+                                    <!-- Primary Submit Button -->
+                                    <button
+                                        class="w-full py-3.5 px-6 rounded-lg bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-semibold text-sm tracking-tight shadow-md hover:shadow-xl hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group"
+                                        id="submitBtn"
+                                        type="submit"
+                                    >
+                                        <span class="">Sign In</span>
+                                        <span
+                                            class="material-symbols-outlined text-base group-hover:translate-x-0.5 transition-transform"
+                                            >arrow_forward</span
+                                        >
+                                    </button>
+                                </form>
+                                <!-- Tonal Separation Divider -->
+
+                                <!-- Enterprise SSO Buttons -->
+                            </div>
+                            <!-- Switch to Sign Up Footer -->
+                            <div
+                                class="mt-8 pt-6 bg-surface-container-low/60 -mx-8 sm:-mx-10 -mb-8 sm:-mb-10 p-6 text-center"
+                            >
+                                <p class="text-xs text-on-surface-variant font-body">
+                                    Don't have an account yet?
+                                    <a
+                                        class="font-semibold text-primary hover:text-primary-container transition-colors ml-1 underline underline-offset-4 decoration-primary/40 hover:decoration-primary"
+                                        href="{{ url_for('create_account') }}"
+                                    >
+                                        Create free account
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Right Editorial Bento Companion: Security & Yield Snapshot -->
+                    </div>
+                    <!-- Security Reassurance Footnote -->
+                    <div class="mt-12 flex items-center justify-center gap-2 text-xs text-outline font-body"></div>
+                </div>
+                <script>
+                    function togglePasswordVisibility() {
+                        const pwdInput = document.getElementById("signin-password");
+                        const eyeIcon = document.getElementById("pwdEyeIcon");
+                        if (!pwdInput || !eyeIcon) return;
+
+                        if (pwdInput.type === "password") {
+                            pwdInput.type = "text";
+                            eyeIcon.textContent = "visibility_off";
+                        } else {
+                            pwdInput.type = "password";
+                            eyeIcon.textContent = "visibility";
+                        }
+                    }
+
+                    function handleAuth() {
+                        const btn = document.getElementById("submitBtn");
+                        if (!btn) return;
+
+                        const originalHTML = btn.innerHTML;
+                        btn.disabled = true;
+                        btn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Authenticating...</span>
+      `;
+
+                        setTimeout(() => {
+                            btn.innerHTML = `
+          <span class="material-symbols-outlined text-base">check</span>
+          <span>Access Granted</span>
+        `;
+                            btn.classList.add("bg-emerald-700");
+                            setTimeout(() => {
+                                btn.disabled = false;
+                                btn.classList.remove("bg-emerald-700");
+                                btn.innerHTML = originalHTML;
+                            }, 1200);
+                        }, 900);
+                    }
+                </script>
+            </div>
+        </main>
+    </body>
+</html>

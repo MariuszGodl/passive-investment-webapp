@@ -23,16 +23,39 @@
 
         <!-- Profile -->
         <div class="flex items-center space-x-4">
-            <div class="text-right hidden sm:block">
-                <p class="text-sm font-semibold text-on-surface">Jan Kowalski</p>
-            </div>
+<!--            <div class="text-right hidden sm:block">-->
+<!--                {% if user == None %}-->
+<!--                <p class="text-sm font-semibold text-on-surface">Log in</p>-->
+
+<!--                {% else %}-->
+<!--                <p class="text-sm font-semibold text-on-surface">{{user.name}} {{user.surname}}</p>-->
+
+<!--                {% endif %}-->
+<!--            </div>-->
 
             <!-- Menu -->
             <div class="relative group/menu">
-                <button aria-label="Open menu" class="p-2 hover:bg-slate-100 rounded-full transition-colors ml-2">
-                    <span class="material-symbols-outlined"> menu </span>
+                {% if user == None %}
+                <button
+                    aria-label="Open menu"
+                    class="p-2 hover:bg-slate-100 rounded-full transition-colors ml-2"
+                >
+                    <div class="text-right hidden sm:block">
+                        <a
+                            href="{{ url_for('login') }}"
+                            class="text-sm font-semibold text-on-surface"
+                        >
+                            Log in
+                        </a>
+                    </div>
                 </button>
 
+                {% else %}
+                <button aria-label="Open menu" class="p-2 hover:bg-slate-100 rounded-full transition-colors ml-2">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-semibold text-on-surface">{{user.name}} {{user.surname}}</p>
+                    </div>
+                </button>
                 <div
                     class="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-outline-variant/10 py-2 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-200 z-50 transform origin-top-right scale-95 group-hover/menu:scale-100"
                 >
@@ -44,20 +67,20 @@
                     </a>
 
                     <a
-                        href="#"
+                        href="{{ url_for('invest_page_user') }}"
                         class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary"
                     >
-                        Second option
-                    </a>
-
-                    <a
-                        href="#"
-                        class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary"
-                    >
-                        Third option
+                        Log out
                     </a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </nav>
+
+<script>
+    function login() {
+
+    }
+</script>
