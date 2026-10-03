@@ -26,14 +26,19 @@ def reset_db():
 
     # Run alembic downgrade base
     print("Downgrading database to base...")
-    result = subprocess.run(["uv", "run", "alembic", "downgrade", "base"], cwd=db_dir, check=False)
+    result = subprocess.run(
+    ["uv", "run", "alembic", "downgrade", "base"], cwd=db_dir, check=False
+    )
+
     if result.returncode != 0:
         print("Error during alembic downgrade.", file=sys.stderr)
         sys.exit(1)
 
     # Run alembic upgrade head
     print("Upgrading database to head...")
-    result = subprocess.run(["uv", "run", "alembic", "upgrade", "head"], cwd=db_dir, check=False)
+    result = subprocess.run(
+        ["uv", "run", "alembic", "upgrade", "head"], cwd=db_dir, check=False
+    )
     if result.returncode != 0:
         print("Error during alembic upgrade.", file=sys.stderr)
         sys.exit(1)

@@ -56,11 +56,8 @@ async def invest_page(request: Request):
 
 @router.get("/product/{product_id}", name="product_detail")
 async def product_detail(request: Request, product_id: int):
-    product = next((
-        product
-        for product in PRODUCTS
-        if product["id"] == product_id
-        ),
+    product = next(
+        (product for product in PRODUCTS if product["id"] == product_id),
         None,
     )
 
