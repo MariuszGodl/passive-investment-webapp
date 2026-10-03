@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% block title %}
 SafeVesting - Invest
 {% endblock %}
@@ -5,9 +7,25 @@ SafeVesting - Invest
 {% block content %}
 <section>
     <h1>Find the right investment</h1>
-    <p>Compare available passive investment products.</p>
     <div>
-        <h2>Investment products</h2>
+        {% for product in products %}
+            <article>
+                <h2>
+                    {{ product.name }}
+                </h2>
+                <p>
+                    Type: {{ product.type }}
+                </p>
+                <p>
+                    Interest rate:
+                    {{ product.interest_rate }}
+                </p>
+                <p>
+                    Term:
+                    {{ product.term}}
+                </p>
+            </article>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}
