@@ -13,3 +13,4 @@
 [Mariusz Godlewski] Added docker-compose-extended.yml as an extension to include Adminer (database UI)
 [Mariusz Godlewski] Added parametrized pytest tests for preprocess_lokaty script
 [Mariusz Godlewski] Added pytest test execution to GitHub Actions CI pipeline
+[Mariusz Godlewski] Containerized FastAPI application and enabled BuildKit optimizations

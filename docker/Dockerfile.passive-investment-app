@@ -1,0 +1,28 @@
+# syntax=docker/dockerfile:1
+FROM python:3.13-slim
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+# Copy only the necessary application source code and migrations
+COPY app ./app
+COPY db ./db
+
+# Expose the port
+EXPOSE 8000
+
+# Configure the main executable
+ENTRYPOINT ["uv", "run", "fastapi", "run"]
+
+# Provide default arguments which can be easily overridden
+CMD ["app/main.py", "--host", "0.0.0.0", "--port", "8000"]

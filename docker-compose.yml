@@ -11,6 +11,17 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.passive-investment-app
+    container_name: passive-investment-web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://app:app@db:5432/passive_investment
+    depends_on:
+      - db
 volumes:
   pgdata:
