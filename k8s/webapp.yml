@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  namespace: passive-investment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: webapp
+          image: godlewskimariusz/passive-investment-webapp:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DATABASE_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  namespace: passive-investment
+spec:
+  type: NodePort
+  selector:
+    app: webapp
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30080
