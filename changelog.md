@@ -15,3 +15,4 @@
 [Mariusz Godlewski] Added pytest test execution to GitHub Actions CI pipeline
 [Mariusz Godlewski] Containerized FastAPI application and enabled BuildKit optimizations
 [Mariusz Godlewski] Added database auto-initialization (reset, convert, preprocess, load) to docker-compose-extended.yml
+[Mariusz Godlewski] Added GitHub Actions CD pipeline to build and push web app Docker image on merge to main
