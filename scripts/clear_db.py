@@ -37,7 +37,7 @@ def reset_db():
     # Run alembic upgrade head
     print("Upgrading database to head...")
     result = subprocess.run(
-        ["uv", "run", "alembic", "upgrade", "head"], cwd=db_dir, check=False
+    ["uv", "run", "alembic", "upgrade", "head"], cwd=db_dir, check=False
     )
     if result.returncode != 0:
         print("Error during alembic upgrade.", file=sys.stderr)
