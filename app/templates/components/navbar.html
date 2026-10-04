@@ -7,26 +7,53 @@
 
         <!-- Navigation -->
         <div class="hidden md:flex items-center space-x-8">
+            {% if request.path == "/" %}
             <a
                 href="{{ url_for('invest_page') }}"
                 class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
             >
                 Invest
             </a>
+            {% else %}
+            <a
+                href="{{ url_for('invest_page') }}"
+                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+            >
+                Invest
+            </a>
+            {% endif %}
 
+            {% if request.path == "/favorites" %}
+            <a
+                href="{{ url_for('favorites_page') }}"
+                class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
+            >
+                Favorites
+            </a>
+            {% else %}
             <a
                 href="{{ url_for('favorites_page') }}"
                 class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
             >
                 Favorites
             </a>
+            {% endif %}
 
+            {% if request.path == "/my_investments" %}
+            <a
+                href="{{ url_for('my_investments_page') }}"
+                class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
+            >
+                My investments
+            </a>
+            {% else %}
             <a
                 href="{{ url_for('my_investments_page') }}"
                 class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
             >
                 My investments
             </a>
+            {% endif %}
         </div>
 
         <!-- Profile -->
