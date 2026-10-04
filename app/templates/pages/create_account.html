@@ -281,7 +281,7 @@
                                         >Account Registration</span
                                     >
                                 </div>
-                                <form class="space-y-6" id="loginForm" onsubmit="event.preventDefault(); handleAuth();">
+                                <form class="space-y-6" id="signupForm">
                                     <!-- Email / Identifier Field -->
                                     <div class="space-y-2">
                                         <label
@@ -395,11 +395,10 @@
                                         id="submitBtn"
                                         type="submit"
                                     >
-                                        <span class="">Create account</span>
-                                        <span
-                                            class="material-symbols-outlined text-base group-hover:translate-x-0.5 transition-transform"
-                                            >arrow_forward</span
-                                        >
+                                        <span>Create account</span>
+                                        <span class="material-symbols-outlined text-base">
+                                            arrow_forward
+                                        </span>
                                     </button>
                                 </form>
                                 <!-- Tonal Separation Divider -->
@@ -424,63 +423,7 @@
                     <!-- Security Reassurance Footnote -->
                     <div class="mt-12 flex items-center justify-center gap-2 text-xs text-outline font-body"></div>
                 </div>
-                <script>
-                    function togglePasswordVisibility() {
-                        const pwdInput = document.getElementById("signin-password");
-                        const eyeIcon = document.getElementById("pwdEyeIcon");
-                        if (!pwdInput || !eyeIcon) return;
-
-                        if (pwdInput.type === "password") {
-                            pwdInput.type = "text";
-                            eyeIcon.textContent = "visibility_off";
-                        } else {
-                            pwdInput.type = "password";
-                            eyeIcon.textContent = "visibility";
-                        }
-                    }
-
-                    function toggleConfirmPasswordVisibility() {
-                        const confirmInput = document.getElementById("confirm-password");
-                        const eyeIcon = document.getElementById("confirmPwdEyeIcon");
-                        if (!confirmInput || !eyeIcon) return;
-
-                        if (confirmInput.type === "password") {
-                            confirmInput.type = "text";
-                            eyeIcon.textContent = "visibility_off";
-                        } else {
-                            confirmInput.type = "password";
-                            eyeIcon.textContent = "visibility";
-                        }
-                    }
-
-                    function handleAuth() {
-                        const btn = document.getElementById("submitBtn");
-                        if (!btn) return;
-
-                        const originalHTML = btn.innerHTML;
-                        btn.disabled = true;
-                        btn.innerHTML = `
-        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span>Authenticating...</span>
-      `;
-
-                        setTimeout(() => {
-                            btn.innerHTML = `
-          <span class="material-symbols-outlined text-base">check</span>
-          <span>Access Granted</span>
-        `;
-                            btn.classList.add("bg-emerald-700");
-                            setTimeout(() => {
-                                btn.disabled = false;
-                                btn.classList.remove("bg-emerald-700");
-                                btn.innerHTML = originalHTML;
-                            }, 1200);
-                        }, 900);
-                    }
-                </script>
+                <script src="{{ url_for('static', path='js/main.js') }}"></script>
             </div>
         </main>
     </body>

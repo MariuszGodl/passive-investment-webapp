@@ -43,7 +43,7 @@
                 {% else %}
                 <button aria-label="Open menu" class="p-2 hover:bg-slate-100 rounded-full transition-colors ml-2">
                     <div class="text-right hidden sm:block">
-                        <p class="text-sm font-semibold text-on-surface">{{user.name}} {{user.surname}}</p>
+                        <p class="text-sm font-semibold text-on-surface">{{user.full_name}}</p>
                     </div>
                 </button>
                 <div
@@ -57,7 +57,7 @@
                     </a>
 
                     <a
-                        href="{{ url_for('invest_page_user') }}"
+                        href="{{ url_for('invest_page') }}"
                         class="block px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary/5 hover:text-primary"
                     >
                         Log out
@@ -69,8 +69,4 @@
     </div>
 </nav>
 
-<script>
-    function login() {
-
-    }
-</script>
+<script src="{{ url_for('static', path='js/main.js') }}"></script>

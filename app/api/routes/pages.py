@@ -44,30 +44,23 @@ PRODUCTS = [
     },
 ]
 
-app_user = User(name="Piotr", surname="Cherek", email="x")
+USERS = [User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")]
+
+app_user: User | None = USERS[0]
+LOGGED_IN: bool = True
 
 
 @router.get("/", name="invest_page")
 async def invest_page(request: Request):
+    context = {
+        "products": PRODUCTS,
+        "user": app_user if LOGGED_IN else None,
+    }
+
     return templates.TemplateResponse(
         request=request,
         name="pages/dashboard.html",
-        context={
-            "products": PRODUCTS,
-            "user": None,
-        },
-    )
-
-
-@router.get("/auth", name="invest_page_user")
-async def invest_page_user(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="pages/dashboard.html",
-        context={
-            "products": PRODUCTS,
-            "user": app_user,
-        },
+        context=context,
     )
 
 
@@ -78,7 +71,7 @@ async def favorites_page(request: Request):
         name="pages/favorites.html",
         context={
             "products": PRODUCTS,
-            "user": app_user,
+            "user": app_user if LOGGED_IN else None,
         },
     )
 
@@ -116,7 +109,7 @@ async def product_detail(request: Request, product_id: int):
         name="pages/product_detail.html",
         context={
             "product": product,
-            "user": app_user,
+            "user": app_user if LOGGED_IN else None,
         },
     )
 
@@ -136,3 +129,35 @@ async def toggle_favorite(product_id: int):
         "is_favorite": is_favorite,
         "favorites": app_user.favorites,
     }
+
+
+@router.post("/api/users")
+async def create_user(user: User):
+    print(user)
+
+    return {
+        "message": "User created",
+        "email": user.email,
+    }
+
+
+# @router.post("/api/login")
+# async def login(user: LoginRequest):
+#     db_user =
+#
+#     if db_user is None:
+#         raise HTTPException(
+#             status_code=401,
+#             detail="Invalid email or password"
+#         )
+#
+#     if not verify_password(user.password, db_user.password_hash):
+#         raise HTTPException(
+#             status_code=401,
+#             detail="Invalid email or password"
+#         )
+#
+#     return {
+#         "message": "Login successful",
+#         "email": db_user.email,
+#     }

@@ -45,14 +45,6 @@
 
 {% endblock %} {% block extra_scripts %}
 
-<script>
-    function toggleFilter(contentId, chevronId) {
-        const content = document.getElementById(contentId);
-        const chevron = document.getElementById(chevronId);
-
-        content.classList.toggle("expanded");
-        chevron.classList.toggle("rotate-180");
-    }
-</script>
+<script src="{{ url_for('static', path='js/main.js') }}"></script>
 
 {% endblock %}
