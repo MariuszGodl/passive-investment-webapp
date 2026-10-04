@@ -28,6 +28,25 @@ async function toggleFavorite(event, btn, productId) {
     }
 }
 
+async function addInvestment(event, btn, productId) {
+    event.stopPropagation();
+
+    try {
+        const response = await fetch(`/api/my_investments/${productId}`, {
+            method: "POST",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add investment");
+        }
+
+        const data = await response.json();
+
+    } catch (error) {
+        console.error("Could add investment:", error);
+    }
+}
+
 function toggleFilter(contentId, chevronId) {
     const content = document.getElementById(contentId);
     const chevron = document.getElementById(chevronId);

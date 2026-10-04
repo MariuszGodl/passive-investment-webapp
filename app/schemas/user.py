@@ -5,4 +5,5 @@ class User(BaseModel):
     full_name: str
     email: str
     favorites: list[int] = Field(default_factory=list)
+    investments: list[int] = Field(default_factory=list)
     password: str
