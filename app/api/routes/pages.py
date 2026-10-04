@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 
-from app.schemas.login_request import LoginRequest
 from app.schemas.user import User
 
 router = APIRouter()
