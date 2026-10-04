@@ -76,6 +76,18 @@ async def favorites_page(request: Request):
     )
 
 
+@router.get("/my_investments", name="my_investments_page")
+async def my_investments_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="pages/my_investments.html",
+        context={
+            "products": PRODUCTS,
+            "user": app_user if LOGGED_IN else None,
+        },
+    )
+
+
 @router.get("/login", name="login")
 async def login(request: Request):
     return templates.TemplateResponse(
@@ -128,6 +140,16 @@ async def toggle_favorite(product_id: int):
         "product_id": product_id,
         "is_favorite": is_favorite,
         "favorites": app_user.favorites,
+    }
+
+
+@router.post("/api/my_investments/{product_id}", name="add_investment")
+async def add_investment(product_id: int):
+    app_user.investments.append(product_id)
+
+    return {
+        "product_id": product_id,
+        "investments": app_user.investments,
     }
 
 

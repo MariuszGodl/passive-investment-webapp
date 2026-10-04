@@ -14,9 +14,17 @@
                 Invest
             </a>
 
-            <a href="/favorites" class="text-slate-500 hover:text-primary transition-colors text-sm font-label"> Favorites </a>
+            <a
+                href="{{ url_for('favorites_page') }}"
+                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+            >
+                Favorites
+            </a>
 
-            <a href="#" class="text-slate-500 hover:text-primary transition-colors text-sm font-label">
+            <a
+                href="{{ url_for('my_investments_page') }}"
+                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+            >
                 My investments
             </a>
         </div>
