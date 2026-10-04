@@ -71,34 +71,4 @@
     </div>
 </a>
 
-<script>
-    async function toggleFavorite(event, btn, productId) {
-        event.stopPropagation();
-
-        try {
-            const response = await fetch(`/api/favorites/${productId}`, {
-                method: "POST",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to update favorite");
-            }
-
-            const data = await response.json();
-
-            const heartIcon = btn.querySelector(".material-symbols-outlined");
-
-            heartIcon.classList.toggle("filled", data.is_favorite);
-
-            const actionText = data.is_favorite
-                ? "Remove from favorites"
-                : "Add to favorites";
-
-            btn.setAttribute("title", actionText);
-            btn.setAttribute("aria-label", actionText);
-
-        } catch (error) {
-            console.error("Could not update favorite:", error);
-        }
-    }
-</script>
+<script src="../../static/js/main.js"></script>

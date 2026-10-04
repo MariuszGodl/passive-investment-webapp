@@ -394,6 +394,7 @@
                                         class="w-full py-3.5 px-6 rounded-lg bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline font-semibold text-sm tracking-tight shadow-md hover:shadow-xl hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group"
                                         id="submitBtn"
                                         type="submit"
+                                        onclick="event.preventDefault(); signup(event, this, {{ product.id }})"
                                     >
                                         <span class="">Create account</span>
                                         <span
@@ -424,7 +425,7 @@
                     <!-- Security Reassurance Footnote -->
                     <div class="mt-12 flex items-center justify-center gap-2 text-xs text-outline font-body"></div>
                 </div>
-                <script>
+                <script src="../../static/js/main.js">
                     function togglePasswordVisibility() {
                         const pwdInput = document.getElementById("signin-password");
                         const eyeIcon = document.getElementById("pwdEyeIcon");
