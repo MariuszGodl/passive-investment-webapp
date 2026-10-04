@@ -9,7 +9,6 @@ from sqlalchemy.exc import OperationalError
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from scripts.clear_db import reset_db
-from scripts.convert_excel_to_csv import convert_excel_to_csv
 from scripts.preprocess_lokaty import preprocess
 from scripts.load_data import main as load_data_main
 
@@ -44,29 +43,27 @@ def main():
     reset_db()
 
     print("2. Checking data files...")
-    raw_csv = Path("data/raw/lokaty_warianty.csv")
-    excel_path = Path("data/raw/lokaty.xlsx")
-
-    # Check if raw csv exists or needs generating
-    if not raw_csv.exists() and excel_path.exists():
-        print(f"Raw CSV not found. Converting from {excel_path}...")
-        convert_excel_to_csv(str(excel_path))
-    elif raw_csv.exists():
-        print("Raw CSV already exists.")
-    else:
-        print(f"Neither {raw_csv} nor {excel_path} found. Skipping conversion.")
-
+    raw_csv = Path("data/raw/technical-details-deposit.csv")
     preprocessed_csv = Path("data/preprocessed/preprocessed_lokaty_warianty.csv")
 
-    # Always try to preprocess if preprocessed file is missing or if we want to ensure latest.
-    if not preprocessed_csv.exists():
-        print("Preprocessed CSV not found. Preprocessing...")
-        try:
-            preprocess()
-        except Exception as e:
-            print(f"Warning: Preprocessing failed: {e}")
+    if not raw_csv.exists():
+        print(f"ERROR: Raw CSV not found at {raw_csv}. Cannot proceed.")
+        sys.exit(1)
     else:
-        print("Preprocessed CSV already exists.")
+        print(f"Raw CSV found: {raw_csv}")
+
+    # Always preprocess to ensure latest data
+    print("Preprocessing raw CSV...")
+    try:
+        preprocess()
+    except Exception as e:
+        print(f"Warning: Preprocessing failed: {e}")
+
+    if not preprocessed_csv.exists():
+        print(
+            f"ERROR: Preprocessed CSV not found at {preprocessed_csv}. Cannot load data."
+        )
+        sys.exit(1)
 
     print("3. Loading data into database...")
     try:

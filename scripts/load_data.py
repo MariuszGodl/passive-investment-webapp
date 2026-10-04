@@ -73,15 +73,19 @@ def insert_variants(conn, df: pd.DataFrame):
         conn.execute(
             text("""
                 INSERT INTO offer_variant (
-                    product_id, variant_code, valid_from, valid_to,
-                    interest_rate, rate_type, term_value, term_unit,
-                    term_days, min_amount, max_amount, currency,
-                    capitalization, additional_condition
+                    product_id, variant_code,
+                    interest_rate, apy, rate_type, term_value, term_unit,
+                    term_days, currency,
+                    capitalization, interest_payout,
+                    inflation_indexed, early_termination,
+                    interest_details, additional_condition
                 )
-                SELECT p.id, :variant_code, :valid_from, :valid_to,
-                    :interest_rate, :rate_type, :term_value, :term_unit,
-                    :term_days, :min_amount, :max_amount, :currency,
-                    :capitalization, :additional_condition
+                SELECT p.id, :variant_code,
+                    :interest_rate, :apy, :rate_type, :term_value, :term_unit,
+                    :term_days, :currency,
+                    :capitalization, :interest_payout,
+                    :inflation_indexed, :early_termination,
+                    :interest_details, :additional_condition
                 FROM product p
                 JOIN bank b ON b.id = p.bank_id
                 WHERE p.code = :product_code AND b.code = :bank_code
@@ -90,18 +94,21 @@ def insert_variants(conn, df: pd.DataFrame):
                 "bank_code": row["bank_code"],
                 "product_code": row["product_code"],
                 "variant_code": row["variant_code"],
-                "valid_from": row["valid_from"],
-                "valid_to": row["valid_to"],
                 "interest_rate": row["interest_rate"],
+                "apy": row.get("apy"),
                 "rate_type": row["rate_type"],
-                "term_value": row["term_value"],
-                "term_unit": row["term_unit"],
-                "term_days": row["term_days"],
-                "min_amount": row["min_amount"],
-                "max_amount": row["max_amount"],
-                "currency": row["currency"] if pd.notnull(row["currency"]) else "PLN",
-                "capitalization": row["capitalization"],
-                "additional_condition": row["additional_condition"],
+                "term_value": row.get("term_value"),
+                "term_unit": row.get("term_unit"),
+                "term_days": row.get("term_days"),
+                "currency": row["currency"]
+                if pd.notnull(row.get("currency"))
+                else "PLN",
+                "capitalization": row.get("capitalization"),
+                "interest_payout": row.get("interest_payout"),
+                "inflation_indexed": row.get("inflation_indexed"),
+                "early_termination": row.get("early_termination"),
+                "interest_details": row.get("interest_details"),
+                "additional_condition": row.get("additional_condition"),
             },
         )
     print(f"Inserted/Updated {len(variants_df)} variants")

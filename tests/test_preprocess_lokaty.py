@@ -1,188 +1,150 @@
-import pandas as pd
 import pytest
 
 from scripts.preprocess_lokaty import (
+    clean_placeholder,
+    parse_numeric,
+    parse_yes_no,
+    normalize_capitalization,
+    merge_requirements,
     compute_term_days,
-    merge_currency,
-    drop_columns,
-    add_term_days,
-    add_currency,
-    drop_invalid_rows,
-    validate_enums,
-    map_enums,
-    rename_columns,
-    reorder_columns,
+    infer_product_type,
     AVG_DAYS_PER_MONTH,
-    DEFAULT_CURRENCY,
-    CURRENCY_COLUMNS,
-    OUTPUT_COLUMN_ORDER,
 )
 
 
+# -- clean_placeholder ---------------------------------------------------------
+
+
 @pytest.mark.parametrize(
-    "okres, okres_typ, expected",
+    "val, expected",
     [
-        (15, "dni", 15),
-        (3, "mies.", round(3 * AVG_DAYS_PER_MONTH)),
-        (None, "dni", None),
+        (None, None),
+        ("", None),
+        ("typed by the user", None),
+        ("typed by user", None),
+        ("calculated", None),
+        ("  Typed By The User  ", None),
+        ("Some real value", "Some real value"),
+        (42, "42"),
+    ],
+)
+def test_clean_placeholder(val, expected):
+    assert clean_placeholder(val) == expected
+
+
+# -- parse_numeric -------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "val, expected",
+    [
+        ("0.045", 0.045),
+        (0.03, 0.03),
+        ("typed by the user", None),
+        (None, None),
+        ("", None),
+        ("not_a_number", None),
+    ],
+)
+def test_parse_numeric(val, expected):
+    assert parse_numeric(val) == expected
+
+
+# -- parse_yes_no --------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "val, expected",
+    [
+        ("Yes", True),
+        ("No", False),
+        ("yes", True),
+        ("no", False),
+        (None, None),
+        ("typed by the user", None),
+    ],
+)
+def test_parse_yes_no(val, expected):
+    assert parse_yes_no(val) == expected
+
+
+# -- normalize_capitalization --------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "val, expected",
+    [
+        ("monthly", "monthly"),
+        ("at maturity", "at_maturity"),
+        ("quarterly", "quarterly"),
+        ("daily", "daily"),
+        ("annual", "annual"),
+        ("at promo end", "at_promo_end"),
+        ("Monthly", "monthly"),
+        (None, None),
+        ("typed by the user", None),
+    ],
+)
+def test_normalize_capitalization(val, expected):
+    assert normalize_capitalization(val) == expected
+
+
+# -- merge_requirements --------------------------------------------------------
+
+
+def test_merge_requirements_all_present():
+    result = merge_requirements("Req 1", "Req 2", "Req 3")
+    assert result == "Req 1 | Req 2 | Req 3"
+
+
+def test_merge_requirements_some_empty():
+    result = merge_requirements("Req 1", None, "Req 3")
+    assert result == "Req 1 | Req 3"
+
+
+def test_merge_requirements_all_empty():
+    result = merge_requirements(None, None, None)
+    assert result is None
+
+
+def test_merge_requirements_placeholders():
+    result = merge_requirements("typed by the user", "Req 2", "calculated")
+    assert result == "Req 2"
+
+
+# -- compute_term_days ---------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "term_value, term_unit, expected",
+    [
+        (15, "days", 15),
+        (3, "months", round(3 * AVG_DAYS_PER_MONTH)),
+        (None, "days", None),
         (15, None, None),
         (None, None, None),
+        (365, "days", 365),
+        (12, "months", round(12 * AVG_DAYS_PER_MONTH)),
     ],
 )
-def test_compute_term_days(okres, okres_typ, expected):
-    assert (
-        compute_term_days(pd.Series({"okres": okres, "okres_typ": okres_typ}))
-        == expected
-    )
+def test_compute_term_days(term_value, term_unit, expected):
+    assert compute_term_days(term_value, term_unit) == expected
+
+
+# -- infer_product_type --------------------------------------------------------
 
 
 @pytest.mark.parametrize(
-    "min_cur, max_cur, expected",
+    "name, expected",
     [
-        (None, None, DEFAULT_CURRENCY),
-        ("", "", DEFAULT_CURRENCY),
-        ("USD", None, "USD"),
-        (None, "EUR", "EUR"),
-        ("PLN", "PLN", "PLN"),
+        ("Lokata terminowa", "term_deposit"),
+        ("Konto oszczędnościowe w ramach Członkostwa", "savings_account"),
+        ("Konto Mega Oszczędnościowe", "savings_account"),
+        ("Lokata z funduszem XIX", "deposit_with_fund"),
+        ("Rachunek Oszczędzam", "savings_account"),
+        (None, "term_deposit"),
+        ("", "term_deposit"),
     ],
 )
-def test_merge_currency_valid(min_cur, max_cur, expected):
-    assert (
-        merge_currency(
-            pd.Series({"min_kwota_waluta": min_cur, "max_kwota_waluta": max_cur})
-        )
-        == expected
-    )
-
-
-def test_merge_currency_mismatch():
-    with pytest.raises(ValueError, match="Currency mismatch"):
-        merge_currency(
-            pd.Series(
-                {
-                    "min_kwota_waluta": "PLN",
-                    "max_kwota_waluta": "EUR",
-                    "kod_wariantu": "V1",
-                }
-            )
-        )
-
-
-def test_drop_columns():
-    df = pd.DataFrame(
-        {"keep": [1], "data_edycji": [2], "edytor": [3], "okres_mies_automat": [4]}
-    )
-    result = drop_columns(df)
-    assert list(result.columns) == ["keep"]
-
-
-def test_add_term_days():
-    df = pd.DataFrame(
-        [{"okres": 10, "okres_typ": "dni"}, {"okres": None, "okres_typ": None}]
-    )
-    result = add_term_days(df)
-    assert "term_days" in result.columns
-    assert result["term_days"].iloc[0] == 10
-    assert pd.isna(result["term_days"].iloc[1])
-    assert result["term_days"].dtype.name == "Int64"
-
-
-def test_add_currency():
-    df = pd.DataFrame(
-        [
-            {"min_kwota_waluta": "USD", "max_kwota_waluta": "USD"},
-            {"min_kwota_waluta": None, "max_kwota_waluta": None},
-        ]
-    )
-    result = add_currency(df)
-    assert "currency" in result.columns
-    assert result["currency"].iloc[0] == "USD"
-    assert result["currency"].iloc[1] == DEFAULT_CURRENCY
-    for col in CURRENCY_COLUMNS:
-        assert col not in result.columns
-
-
-def test_drop_invalid_rows():
-    df = pd.DataFrame(
-        [
-            {"lokata/konto": "lok_ter", "rodzaj_oproc": "stałe", "kod_wariantu": "V1"},
-            {"lokata/konto": None, "rodzaj_oproc": "stałe", "kod_wariantu": "V2"},
-            {"lokata/konto": "lok_ter", "rodzaj_oproc": None, "kod_wariantu": "V3"},
-        ]
-    )
-    result = drop_invalid_rows(df)
-    assert len(result) == 1
-    assert result["kod_wariantu"].iloc[0] == "V1"
-
-
-def test_validate_enums_valid():
-    df_valid = pd.DataFrame(
-        {
-            "lokata/konto": ["lok_ter"],
-            "rodzaj_oproc": ["stałe"],
-            "okres_typ": ["dni"],
-            "kapitalizacja": ["miesięczna"],
-        }
-    )
-    validate_enums(df_valid)
-
-
-def test_validate_enums_valid_null():
-    df_valid_null = pd.DataFrame(
-        {
-            "lokata/konto": ["lok_ter"],
-            "rodzaj_oproc": ["stałe"],
-            "okres_typ": [None],
-            "kapitalizacja": [None],
-        }
-    )
-    validate_enums(df_valid_null)
-
-
-def test_validate_enums_invalid():
-    df_invalid = pd.DataFrame(
-        {
-            "lokata/konto": ["unknown_type"],
-            "rodzaj_oproc": ["stałe"],
-            "okres_typ": ["dni"],
-            "kapitalizacja": ["miesięczna"],
-        }
-    )
-    with pytest.raises(ValueError, match="Unknown enum values found in CSV"):
-        validate_enums(df_invalid)
-
-
-@pytest.mark.parametrize(
-    "col, expected",
-    [
-        ("lokata/konto", ["term_deposit", "savings_account"]),
-        ("rodzaj_oproc", ["fixed", "variable"]),
-        ("okres_typ", ["months", "days"]),
-        ("kapitalizacja", ["monthly", "annual"]),
-    ],
-)
-def test_map_enums(col, expected):
-    df = pd.DataFrame(
-        {
-            "lokata/konto": ["lok_ter", "lok_kon"],
-            "rodzaj_oproc": ["stałe", "zmienne"],
-            "okres_typ": ["mies.", "dni"],
-            "kapitalizacja": ["miesięczna", "roczna"],
-        }
-    )
-    result = map_enums(df)
-    assert list(result[col]) == expected
-
-
-def test_rename_columns():
-    df = pd.DataFrame({"kod_banku": ["B1"], "nazwa_lokaty": ["Lokata"]})
-    result = rename_columns(df)
-    assert "bank_code" in result.columns
-    assert "product_name" in result.columns
-
-
-def test_reorder_columns():
-    # Create df with all output columns but in random order
-    df = pd.DataFrame({col: [] for col in reversed(OUTPUT_COLUMN_ORDER)})
-    result = reorder_columns(df)
-    assert list(result.columns) == OUTPUT_COLUMN_ORDER
+def test_infer_product_type(name, expected):
+    assert infer_product_type(name) == expected

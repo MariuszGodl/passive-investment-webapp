@@ -77,20 +77,21 @@ CREATE TABLE product (
 
 CREATE TABLE offer_variant (
     id                    SERIAL PRIMARY KEY,
-    product_id            INTEGER        NOT NULL REFERENCES product(id) ON DELETE CASCADE, -- derived from csv: kod_lokaty
-    variant_code          VARCHAR(30)    NOT NULL UNIQUE,  -- csv: kod_wariantu
-    valid_from            DATE           NOT NULL,         -- csv: data_od
-    valid_to              DATE,                            -- csv: data_do (NULL = currently active)
-    interest_rate         DECIMAL(6, 4)  NOT NULL,         -- csv: oproc
-    rate_type             rate_type      NOT NULL,         -- csv: rodzaj_oproc (stałe→fixed, zmienne→variable)
-    term_value            DECIMAL(8, 2),                   -- csv: okres
-    term_unit             term_unit,                       -- csv: okres_typ (mies.→months, dni→days)
-    term_days             INTEGER,                         -- computed from okres + okres_typ
-    min_amount            DECIMAL(14, 2),                  -- csv: min_kwota
-    max_amount            DECIMAL(14, 2),                  -- csv: max_kwota
-    currency              VARCHAR(3)     NOT NULL DEFAULT 'PLN', -- csv: min_kwota_waluta / max_kwota_waluta (merged)
-    capitalization        capitalization,                   -- csv: kapitalizacja
-    additional_condition  TEXT,                             -- csv: dodatkowy_warunek
+    product_id            INTEGER        NOT NULL REFERENCES product(id) ON DELETE CASCADE,
+    variant_code          VARCHAR(30)    NOT NULL UNIQUE,
+    interest_rate         DECIMAL(6, 4)  NOT NULL,
+    apy                   DECIMAL(20, 16),                  -- annual percentage yield
+    rate_type             rate_type      NOT NULL,
+    term_value            DECIMAL(8, 2),
+    term_unit             term_unit,
+    term_days             INTEGER,
+    currency              VARCHAR(3)     NOT NULL DEFAULT 'PLN',
+    capitalization        capitalization,
+    interest_payout       VARCHAR(100),
+    inflation_indexed     BOOLEAN,
+    early_termination     BOOLEAN,
+    interest_details      TEXT,
+    additional_condition  TEXT,
     created_at            TIMESTAMPTZ    NOT NULL DEFAULT NOW()
 );
 
@@ -98,10 +99,7 @@ CREATE TABLE offer_variant (
 -- INDEXES
 -- ============================================================
 
--- Active offers (valid_to IS NULL = currently active)
-CREATE INDEX idx_offer_variant_active
-    ON offer_variant (valid_to)
-    WHERE valid_to IS NULL;
+
 
 -- Sort/filter by interest rate
 CREATE INDEX idx_offer_variant_rate
