@@ -71,6 +71,18 @@ async def invest_page_user(request: Request):
     )
 
 
+@router.get("/favorites", name="favorites_page")
+async def favorites_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="pages/favorites.html",
+        context={
+            "products": PRODUCTS,
+            "user": app_user,
+        },
+    )
+
+
 @router.get("/login", name="login")
 async def login(request: Request):
     return templates.TemplateResponse(

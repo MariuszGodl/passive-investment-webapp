@@ -17,13 +17,18 @@
                         {{ product.name }}
                     </h1>
                     <div class="relative group">
+                        {% set is_favorite = user and product.id in user.favorites %}
                         <button
                             type="button"
-                            aria-label="Add to favorites"
+                            aria-label="{{ 'Remove from favorites' if is_favorite else 'Add to favorites' }}"
                             class="heart-btn shrink-0 ml-[20px] relative z-10"
-                            onclick="event.preventDefault(); toggleHeart(this)"
+                            onclick="event.preventDefault(); toggleFavorite(event, this, {{ product.id }})"
                         >
-                            <span class="material-symbols-outlined text-primary text-4xl"> favorite </span>
+                            <span
+                                class="material-symbols-outlined text-primary text-4xl {% if is_favorite %}filled{% endif %}"
+                            >
+                                favorite
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -261,12 +266,34 @@
 {% endblock %} {% block extra_scripts %}
 
 <script>
-    function toggleHeart(btn) {
-        const heartIcon = btn.querySelector('.material-symbols-outlined');
-        const isFilled = heartIcon.classList.toggle('filled');
-        const actionText = isFilled ? 'Remove from favorites' : 'Add to favorites';
-        btn.setAttribute('title', actionText);
-        btn.setAttribute('aria-label', actionText);
+    async function toggleFavorite(event, btn, productId) {
+        event.stopPropagation();
+
+        try {
+            const response = await fetch(`/api/favorites/${productId}`, {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update favorite");
+            }
+
+            const data = await response.json();
+
+            const heartIcon = btn.querySelector(".material-symbols-outlined");
+
+            heartIcon.classList.toggle("filled", data.is_favorite);
+
+            const actionText = data.is_favorite
+                ? "Remove from favorites"
+                : "Add to favorites";
+
+            btn.setAttribute("title", actionText);
+            btn.setAttribute("aria-label", actionText);
+
+        } catch (error) {
+            console.error("Could not update favorite:", error);
+        }
     }
 </script>
 
