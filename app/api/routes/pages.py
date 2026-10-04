@@ -48,7 +48,7 @@ PRODUCTS = [
 USERS = [User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")]
 
 app_user: User | None = USERS[0]
-LOGGED_IN: bool = False
+LOGGED_IN: bool = True
 
 
 @router.get("/", name="invest_page")
@@ -142,23 +142,23 @@ async def create_user(user: User):
     }
 
 
-@router.post("/api/login")
-async def login(user: LoginRequest):
-    db_user = ...
-
-    if db_user is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
-        )
-
-    if not verify_password(user.password, db_user.password_hash):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
-        )
-
-    return {
-        "message": "Login successful",
-        "email": db_user.email,
-    }
+# @router.post("/api/login")
+# async def login(user: LoginRequest):
+#     db_user =
+#
+#     if db_user is None:
+#         raise HTTPException(
+#             status_code=401,
+#             detail="Invalid email or password"
+#         )
+#
+#     if not verify_password(user.password, db_user.password_hash):
+#         raise HTTPException(
+#             status_code=401,
+#             detail="Invalid email or password"
+#         )
+#
+#     return {
+#         "message": "Login successful",
+#         "email": db_user.email,
+#     }
