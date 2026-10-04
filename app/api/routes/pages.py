@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 
+from app.schemas.login_request import LoginRequest
 from app.schemas.user import User
 
 router = APIRouter()
@@ -44,9 +45,7 @@ PRODUCTS = [
     },
 ]
 
-USERS = [
-    User(name="Piotr", surname="Cherek", email="x@gmail.com", password="qweqwe")
-]
+USERS = [User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")]
 
 app_user: User | None = USERS[0]
 LOGGED_IN: bool = False
@@ -130,4 +129,36 @@ async def toggle_favorite(product_id: int):
         "product_id": product_id,
         "is_favorite": is_favorite,
         "favorites": app_user.favorites,
+    }
+
+
+@router.post("/api/users")
+async def create_user(user: User):
+    print(user)
+
+    return {
+        "message": "User created",
+        "email": user.email,
+    }
+
+
+@router.post("/api/login")
+async def login(user: LoginRequest):
+    db_user = ...
+
+    if db_user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    if not verify_password(user.password, db_user.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    return {
+        "message": "Login successful",
+        "email": db_user.email,
     }

@@ -28,40 +28,114 @@ async function toggleFavorite(event, btn, productId) {
     }
 }
 
-async function signup(event, btn, full_name, email, password, repeat_password) {
-    event.stopPropagation();
+function toggleFilter(contentId, chevronId) {
+    const content = document.getElementById(contentId);
+    const chevron = document.getElementById(chevronId);
 
-    try {
-        const response = await fetch(`/api/users/${email}`, {
-            method: "POST",
-            body: JSON.stringify({
-                full_name: full_name,
-                email: email,
-                password: password
-            })
-        });
+    content.classList.toggle("expanded");
+    chevron.classList.toggle("rotate-180");
+}
 
-        if (!response.ok) {
-            throw new Error("Failed to sign up user");
-        }
+function togglePasswordVisibility() {
+    const pwdInput = document.getElementById("signin-password");
+    const eyeIcon = document.getElementById("pwdEyeIcon");
+    if (!pwdInput || !eyeIcon) return;
 
-    } catch (error) {
-        console.error("Could not sign up user:", error);
+    if (pwdInput.type === "password") {
+        pwdInput.type = "text";
+        eyeIcon.textContent = "visibility_off";
+    } else {
+        pwdInput.type = "password";
+        eyeIcon.textContent = "visibility";
     }
 }
 
-async function login(event, btn, email, password) {
-    event.stopPropagation();
+function toggleConfirmPasswordVisibility() {
+    const confirmInput = document.getElementById("confirm-password");
+    const eyeIcon = document.getElementById("confirmPwdEyeIcon");
+    if (!confirmInput || !eyeIcon) return;
 
-    try {
-        const response = await fetch(`/api/users/${email}`, {
-            method: "GET",
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to get user");
-        }
-
-        const data = await response.json();
+    if (confirmInput.type === "password") {
+        confirmInput.type = "text";
+        eyeIcon.textContent = "visibility_off";
+    } else {
+        confirmInput.type = "password";
+        eyeIcon.textContent = "visibility";
     }
+}
+
+document.getElementById("signupForm")?.addEventListener("submit", signup);
+
+async function signup(event) {
+    event.preventDefault();
+
+    const fullName = document.getElementById("signin-fullname").value;
+    const email = document.getElementById("signin-email").value;
+    const password = document.getElementById("signin-password").value;
+    const repeatPassword = document.getElementById("confirm-password").value;
+
+    if (password !== repeatPassword) {
+        console.error("Passwords do not match");
+        return;
+    }
+
+    console.log("Full name:", fullName);
+    console.log("Email:", email);
+    console.log("Password:", password);
+
+    const response = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            full_name: fullName,
+            email: email,
+            password: password
+        })
+    });
+
+    if (!response.ok) {
+        console.error("Failed to create account");
+        return;
+    }
+
+    const data = await response.json();
+
+    console.log("Server response:", data);
+}
+
+async function login(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("signin-email").value;
+    const password = document.getElementById("signin-password").value;
+
+    const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password
+        })
+    });
+
+    if (!response.ok) {
+        console.error("Login failed");
+        return;
+    }
+
+    const data = await response.json();
+
+    console.log("Login successful:", data);
+
+    window.location.href = "/";
+}
+
+const loginForm = document.getElementById("loginForm");
+
+if (loginForm) {
+    loginForm.addEventListener("submit", login);
 }
