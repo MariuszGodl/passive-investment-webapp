@@ -49,6 +49,7 @@ dmypy.json
 .ipynb_checkpoints
 
 # Environment variables and secrets
+pyenv/
 .env
 .env.*
 !.env.example

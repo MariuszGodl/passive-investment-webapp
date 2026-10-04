@@ -17,17 +17,18 @@
                         {{ product.name }}
                     </h1>
                     <div class="relative group">
+                        {% set is_favorite = user and product.id in user.favorites %}
                         <button
                             type="button"
-                            aria-label="Add to favorites"
+                            aria-label="{{ 'Remove from favorites' if is_favorite else 'Add to favorites' }}"
                             class="heart-btn shrink-0 ml-[20px] relative z-10"
-                            onclick="event.preventDefault(); toggleHeart(this)"
+                            onclick="event.preventDefault(); toggleFavorite(event, this, {{ product.id }})"
                         >
                             <span
-                                class="material-symbols-outlined text-primary text-5xl"
-                                style='font-variation-settings: "FILL" 0;'
-                                >favorite</span
+                                class="material-symbols-outlined text-primary text-4xl {% if is_favorite %}filled{% endif %}"
                             >
+                                favorite
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -233,21 +234,6 @@
         transform: scale(1.3);
         background: #4c0080;
     }
-    .heart-tooltip {
-        visibility: hidden;
-        opacity: 0;
-        transition:
-            opacity 0.2s,
-            visibility 0.2s;
-        bottom: 120%;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-    }
-    .heart-btn:hover .heart-tooltip {
-        visibility: visible;
-        opacity: 1;
-    }
     .timeline-tooltip {
         visibility: hidden;
         opacity: 0;
@@ -275,33 +261,39 @@
         visibility: visible;
         opacity: 1;
     }
-    .timeline-tooltip::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border-width: 6px;
-        border-style: solid;
-        border-color: white transparent transparent transparent;
-    }
-    .nav-dropdown {
-        display: none;
-    }
-    .group:hover .nav-dropdown {
-        display: block;
-    }
 </style>
 
 {% endblock %} {% block extra_scripts %}
 
 <script>
-    function toggleFilter(contentId, chevronId) {
-        const content = document.getElementById(contentId);
-        const chevron = document.getElementById(chevronId);
+    async function toggleFavorite(event, btn, productId) {
+        event.stopPropagation();
 
-        content.classList.toggle("expanded");
-        chevron.classList.toggle("rotate-180");
+        try {
+            const response = await fetch(`/api/favorites/${productId}`, {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update favorite");
+            }
+
+            const data = await response.json();
+
+            const heartIcon = btn.querySelector(".material-symbols-outlined");
+
+            heartIcon.classList.toggle("filled", data.is_favorite);
+
+            const actionText = data.is_favorite
+                ? "Remove from favorites"
+                : "Add to favorites";
+
+            btn.setAttribute("title", actionText);
+            btn.setAttribute("aria-label", actionText);
+
+        } catch (error) {
+            console.error("Could not update favorite:", error);
+        }
     }
 </script>
 

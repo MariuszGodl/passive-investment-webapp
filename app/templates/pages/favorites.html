@@ -1,0 +1,58 @@
+{% extends "base.html" %} {% block title %} SafeVesting - Invest {% endblock %} {% block content %}
+
+<main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+    <!-- Hero -->
+    <section class="text-center mb-16">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-primary mb-4 tracking-tight font-headline">
+            Favorites
+        </h1>
+
+        <p class="max-w-lg mx-auto text-lg text-[#000000]">
+            Your saved investment offers in one place. Track and compare selected deposits and bonds
+        </p>
+    </section>
+
+    <!-- Products -->
+    <section class="space-y-8 max-w-5xl mx-auto">
+        <div class="flex flex-col space-y-6">
+            {% for product in products if product.id in user.favorites %} {% include "components/product_card.html" %} {% else %}
+
+            <div class="py-12 text-center">
+                <p class="text-lg font-medium">We could not find any solutions that match your criteria.</p>
+            </div>
+
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+{% endblock %} {% block extra_styles %}
+
+<style>
+    .filter-content {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition:
+            max-height 0.3s ease-out,
+            opacity 0.2s ease-out;
+    }
+    .filter-content.expanded {
+        max-height: 800px;
+        opacity: 1;
+    }
+</style>
+
+{% endblock %} {% block extra_scripts %}
+
+<script>
+    function toggleFilter(contentId, chevronId) {
+        const content = document.getElementById(contentId);
+        const chevron = document.getElementById(chevronId);
+
+        content.classList.toggle("expanded");
+        chevron.classList.toggle("rotate-180");
+    }
+</script>
+
+{% endblock %}
