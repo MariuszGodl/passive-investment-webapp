@@ -7,52 +7,60 @@
 
         <!-- Navigation -->
         <div class="hidden md:flex items-center space-x-8">
+            {% set logged_in = 1 if user else 0 %}
+
             {% if request.path == "/" %}
-            <a
-                href="{{ url_for('invest_page') }}"
-                class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
-            >
-                Invest
-            </a>
+                <button
+                    type="button"
+                    class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
+                    onclick="event.preventDefault(); navBarRouting(event, this, 1, '/')"
+                >
+                    Invest
+                </button>
             {% else %}
-            <a
-                href="{{ url_for('invest_page') }}"
-                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
-            >
-                Invest
-            </a>
+                <button
+                    type="button"
+                    class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+                    onclick="event.preventDefault(); navBarRouting(event, this, 1, '/')"
+                >
+                    Invest
+                </button>
             {% endif %}
 
             {% if request.path == "/favorites" %}
-            <a
-                href="{{ url_for('favorites_page') }}"
-                class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
-            >
-                Favorites
-            </a>
+                <button
+                    type="button"
+                    class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
+                    onclick="event.preventDefault(); navBarRouting(event, this, {{ logged_in }}, '/favorites')"
+                >
+                    Favorites
+                </button>
             {% else %}
-            <a
-                href="{{ url_for('favorites_page') }}"
-                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
-            >
-                Favorites
-            </a>
+                <button
+                    type="button"
+                    class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+                    onclick="event.preventDefault(); navBarRouting(event, this, {{ logged_in }}, '/favorites')"
+                >
+                    Favorites
+                </button>
             {% endif %}
 
             {% if request.path == "/my_investments" %}
-            <a
-                href="{{ url_for('my_investments_page') }}"
-                class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
-            >
-                My investments
-            </a>
+                <button
+                    type="button"
+                    class="text-primary font-semibold border-b-2 border-primary pb-1 text-sm font-label"
+                    onclick="event.preventDefault(); navBarRouting(event, this, {{ logged_in }}, '/my_investments')"
+                >
+                    My investments
+                </button>
             {% else %}
-            <a
-                href="{{ url_for('my_investments_page') }}"
-                class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
-            >
-                My investments
-            </a>
+                <button
+                    type="button"
+                    class="text-slate-500 hover:text-primary transition-colors text-sm font-label"
+                    onclick="event.preventDefault(); navBarRouting(event, this, {{ logged_in }}, '/my_investments')"
+                >
+                    My investments
+                </button>
             {% endif %}
         </div>
 
