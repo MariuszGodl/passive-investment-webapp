@@ -18,11 +18,12 @@
                     </h1>
                     <div class="relative group">
                         {% set is_favorite = user and product.id in user.favorites %}
+                        {% set logged_in = 1 if user else 0 %}
                         <button
                             type="button"
                             aria-label="{{ 'Remove from favorites' if is_favorite else 'Add to favorites' }}"
                             class="heart-btn shrink-0 ml-[20px] relative z-10"
-                            onclick="event.preventDefault(); toggleFavorite(event, this, {{ product.id }})"
+                            onclick="event.preventDefault(); toggleFavorite(event, this, {{ product.id }}, {{ logged_in }})"
                         >
                             <span
                                 class="material-symbols-outlined text-primary text-4xl {% if is_favorite %}filled{% endif %}"

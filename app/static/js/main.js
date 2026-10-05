@@ -1,9 +1,14 @@
-async function toggleFavorite(event, btn, productId) {
+async function toggleFavorite(event, btn, productId, logged_in) {
     event.stopPropagation();
 
     try {
+        if (!logged_in) {
+            window.location.href = "/login";
+            return;
+        }
+
         const response = await fetch(`/api/favorites/${productId}`, {
-            method: "POST",
+        method: "POST",
         });
 
         if (!response.ok) {
@@ -28,6 +33,17 @@ async function toggleFavorite(event, btn, productId) {
     }
 }
 
+async function navBarRouting(event, btn, logged_in, path) {
+    event.stopPropagation();
+
+    if (!logged_in) {
+        window.location.href = "/login";
+        return;
+    }
+
+    window.location.href = path;
+}
+
 async function addInvestment(event, btn, productId) {
     event.stopPropagation();
 
@@ -43,7 +59,7 @@ async function addInvestment(event, btn, productId) {
         const data = await response.json();
 
     } catch (error) {
-        console.error("Could add investment:", error);
+        console.error("Could not add investment:", error);
     }
 }
 
