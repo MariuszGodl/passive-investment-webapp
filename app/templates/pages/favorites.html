@@ -15,7 +15,7 @@
     <!-- Products -->
     <section class="space-y-8 max-w-5xl mx-auto">
         <div class="flex flex-col space-y-6">
-            {% for product in products if product.id in user.favorites %} {% include "components/product_card.html" %} {% else %}
+            {% for product in products if product.variant_id in user.favorites %} {% include "components/product_card.html" %} {% else %}
 
             <div class="py-12 text-center">
                 <p class="text-lg font-medium">We could not find any solutions that match your criteria.</p>

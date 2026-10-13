@@ -1,5 +1,5 @@
 <a
-    href="{{ url_for('product_detail', product_id=product.id) }}"
+    href="{{ url_for('product_detail', variant_id=product.variant_id) }}"
     class="bg-white rounded-xl p-10 shadow-sm hover:shadow-xl transition-all border border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between group relative overflow-hidden min-h-[180px] cursor-pointer block"
 >
     <!-- Top accent -->
@@ -26,7 +26,6 @@
         <div class="flex flex-wrap items-center gap-6 text-sm text-slate-500 mb-4">
             <span class="flex items-center font-medium">
                 <span class="material-symbols-outlined text-lg mr-2 text-primary"> calendar_today </span>
-
                 {{ product.duration }}
             </span>
         </div>
@@ -46,17 +45,24 @@
 
                 <div class="w-full h-px bg-white/20 my-2"></div>
 
-                <span class="text-sm opacity-90"> estimated return {{ product.estimated_profit }} PLN </span>
+                <span class="text-sm opacity-90">
+                    estimated return
+                    {% if product.estimated_profit is not none %}
+                        {{ product.estimated_profit }} {{ product.currency }}
+                    {% else %}
+                        to be calculated
+                    {% endif %}
+                </span>
             </div>
 
             <!-- Favorite -->
-            {% set is_favorite = user and product.id in user.favorites %}
+            {% set is_favorite = user and product.variant_id in user.favorites %}
             {% set logged_in = 1 if user else 0 %}
             <button
                 type="button"
                 aria-label="{{ 'Remove from favorites' if is_favorite else 'Add to favorites' }}"
                 class="heart-btn shrink-0 ml-[20px] relative z-10"
-                onclick="event.preventDefault(); toggleFavorite(event, this, {{ product.id }}, {{ logged_in }})"
+                onclick="event.preventDefault(); toggleFavorite(event, this, {{ product.variant_id }}, {{ logged_in }})"
             >
                 <span
                     class="material-symbols-outlined text-primary text-4xl {% if is_favorite %}filled{% endif %}"
@@ -67,7 +73,7 @@
         </div>
 
         <p class="mt-4 text-[11px] text-on-surface font-semibold text-center w-full min-w-[200px]">
-            {{ product.payout_description }}
+            Capitalization: {{ product.payout_description }}
         </p>
     </div>
 </a>

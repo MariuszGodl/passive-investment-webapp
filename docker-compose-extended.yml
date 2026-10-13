@@ -20,5 +20,6 @@ services:
     environment:
       DATABASE_URL: "postgresql+psycopg2://app:app@db:5432/passive_investment"
     volumes:
-      - .:/app
+      - ./scripts:/app/scripts:ro
+      - ./data:/app/data
     entrypoint: ["uv", "run", "python", "scripts/init_dev_db.py"]

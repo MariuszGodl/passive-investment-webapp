@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 
+from app.db_functions import get_offer_by_variant_id, get_offers
 from app.schemas.user import User
 
 router = APIRouter()
@@ -8,52 +9,14 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
-PRODUCTS = [
-    {
-        "id": 1,
-        "institution_name": "PKO Bank Polski",
-        "name": "Captain's Investment Deposit",
-        "badge": "Guaranteed return",
-        "duration": "12 months",
-        "requirement": "Personal account required at PKO BP",
-        "interest_rate": 7.5,
-        "estimated_profit": 750,
-        "payout_description": "Interest paid at investment maturity",
-    },
-    {
-        "id": 2,
-        "institution_name": "VeloBank",
-        "name": "Captain's Investment Deposit",
-        "badge": "Welcome deposit",
-        "duration": "12 months",
-        "requirement": "Personal account required at VeloBank",
-        "interest_rate": 7.5,
-        "estimated_profit": 750,
-        "payout_description": "Interest paid at investment maturity",
-    },
-    {
-        "id": 3,
-        "institution_name": "Treasury Bonds",
-        "name": "10-year Treasury Bond",
-        "badge": "Treasury bond",
-        "duration": "10 years",
-        "requirement": "No bank account required",
-        "interest_rate": 8.2,
-        "estimated_profit": 820,
-        "payout_description": "Interest according to bond terms",
-    },
-]
-
-USERS = [User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")]
-
-app_user: User | None = USERS[0]
+app_user = User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")
 LOGGED_IN: bool = True
 
 
 @router.get("/", name="invest_page")
-async def invest_page(request: Request):
+def invest_page(request: Request):
     context = {
-        "products": PRODUCTS,
+        "products": get_offers(),
         "user": app_user if LOGGED_IN else None,
     }
 
@@ -65,24 +28,24 @@ async def invest_page(request: Request):
 
 
 @router.get("/favorites", name="favorites_page")
-async def favorites_page(request: Request):
+def favorites_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="pages/favorites.html",
         context={
-            "products": PRODUCTS,
+            "products": get_offers(variant_ids=app_user.favorites, active_only=False),
             "user": app_user if LOGGED_IN else None,
         },
     )
 
 
 @router.get("/my_investments", name="my_investments_page")
-async def my_investments_page(request: Request):
+def my_investments_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="pages/my_investments.html",
         context={
-            "products": PRODUCTS,
+            "products": get_offers(variant_ids=app_user.investments, active_only=False),
             "user": app_user if LOGGED_IN else None,
         },
     )
@@ -106,15 +69,11 @@ async def create_account(request: Request):
     )
 
 
-@router.get("/product/{product_id}", name="product_detail")
-async def product_detail(request: Request, product_id: int):
-    product = next(
-        (product for product in PRODUCTS if product["id"] == product_id),
-        None,
-    )
-
+@router.get("/product/{variant_id}", name="product_detail")
+def product_detail(request: Request, variant_id: int):
+    product = get_offer_by_variant_id(variant_id)
     if product is None:
-        return {"error": "Product not found"}
+        raise HTTPException(status_code=404, detail="Offer not found")
 
     return templates.TemplateResponse(
         request=request,
@@ -126,29 +85,30 @@ async def product_detail(request: Request, product_id: int):
     )
 
 
-@router.post("/api/favorites/{product_id}", name="toggle_favorite")
-async def toggle_favorite(product_id: int):
+@router.post("/api/favorites/{variant_id}", name="toggle_favorite")
+async def toggle_favorite(variant_id: int):
     is_favorite = False
 
-    if product_id in app_user.favorites:
-        app_user.favorites.remove(product_id)
+    if variant_id in app_user.favorites:
+        app_user.favorites.remove(variant_id)
     else:
-        app_user.favorites.append(product_id)
+        app_user.favorites.append(variant_id)
         is_favorite = True
 
     return {
-        "product_id": product_id,
+        "variant_id": variant_id,
         "is_favorite": is_favorite,
         "favorites": app_user.favorites,
     }
 
 
-@router.post("/api/my_investments/{product_id}", name="add_investment")
-async def add_investment(product_id: int):
-    app_user.investments.append(product_id)
+@router.post("/api/my_investments/{variant_id}", name="add_investment")
+async def add_investment(variant_id: int):
+    if variant_id not in app_user.investments:
+        app_user.investments.append(variant_id)
 
     return {
-        "product_id": product_id,
+        "variant_id": variant_id,
         "investments": app_user.investments,
     }
 
