@@ -176,7 +176,9 @@ def get_offers(
     if variant_ids is not None and not variant_ids:
         return []
 
-    query = _OFFER_SELECT + """
+    query = (
+        _OFFER_SELECT
+        + """
         WHERE (
             NOT :active_only
             OR (
@@ -185,6 +187,7 @@ def get_offers(
             )
         )
     """
+    )
     parameters: dict[str, Any] = {"active_only": active_only}
     if variant_ids is not None:
         query += " AND ov.id IN :variant_ids"
@@ -204,8 +207,12 @@ def get_offer_by_variant_id(variant_id: int) -> dict[str, Any] | None:
     """Return one offer variant, including expired variants, for its detail page."""
     query = _OFFER_SELECT + " WHERE ov.id = :variant_id"
     with _get_engine().connect() as connection:
-        row = connection.execute(
-            text(query),
-            {"variant_id": variant_id},
-        ).mappings().first()
+        row = (
+            connection.execute(
+                text(query),
+                {"variant_id": variant_id},
+            )
+            .mappings()
+            .first()
+        )
     return _map_offer(row) if row is not None else None
