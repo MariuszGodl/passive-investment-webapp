@@ -1,4 +1,4 @@
-async function toggleFavorite(event, btn, productId, logged_in) {
+async function toggleFavorite(event, btn, variant_id, logged_in) {
     event.stopPropagation();
 
     try {
@@ -7,7 +7,7 @@ async function toggleFavorite(event, btn, productId, logged_in) {
             return;
         }
 
-        const response = await fetch(`/api/favorites/${productId}`, {
+        const response = await fetch(`/api/favorites/${variant_id}`, {
         method: "POST",
         });
 
@@ -44,11 +44,11 @@ async function navBarRouting(event, btn, logged_in, path) {
     window.location.href = path;
 }
 
-async function addInvestment(event, btn, productId) {
+async function addInvestment(event, btn, variant_id) {
     event.stopPropagation();
 
     try {
-        const response = await fetch(`/api/my_investments/${productId}`, {
+        const response = await fetch(`/api/my_investments/${variant_id}`, {
             method: "POST",
         });
 
