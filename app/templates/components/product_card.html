@@ -1,5 +1,12 @@
 <a
     href="{{ url_for('product_detail', variant_id=product.variant_id) }}"
+    data-product-card
+    data-product-type="{{ product.product_type }}"
+    data-term-days="{{ product.term_days if product.term_days is not none else '' }}"
+    data-min-amount="{{ product.min_amount if product.min_amount is not none else '' }}"
+    data-max-amount="{{ product.max_amount if product.max_amount is not none else '' }}"
+    data-rate="{{ product.annual_rate if product.annual_rate is not none else '' }}"
+    data-capitalization="{{ product.capitalization or '' }}"
     class="bg-white rounded-xl p-10 shadow-sm hover:shadow-xl transition-all border border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between group relative overflow-hidden min-h-[180px] cursor-pointer block"
 >
     <!-- Top accent -->
@@ -29,6 +36,12 @@
                 {{ product.duration }}
             </span>
         </div>
+
+        {% if investment_details and product.variant_id in investment_details %}
+        <p class="text-sm font-semibold text-on-surface">
+            Invested {{ investment_details[product.variant_id].amount }} PLN for {{ investment_details[product.variant_id].horizon_months }} months
+        </p>
+        {% endif %}
 
         <p class="text-xs text-slate-400 font-medium">{{ product.requirement }}</p>
     </div>

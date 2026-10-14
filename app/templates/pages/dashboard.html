@@ -11,7 +11,8 @@
     </section>
 
     <!-- Investment configurator -->
-    <section
+    <form
+        id="investment-configurator"
         class="bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant/10 max-w-3xl mx-auto mb-12"
     >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -26,7 +27,8 @@
                         id="input-horizon"
                         type="number"
                         min="1"
-                        value="3"
+                        required
+                        placeholder="e.g. 3"
                         class="w-full bg-transparent border-b-2 border-surface-container-highest focus:border-primary focus:ring-0 py-4 text-xl font-medium text-on-surface text-center md:text-left pr-28"
                     />
 
@@ -50,7 +52,9 @@
                         id="input-amount"
                         type="number"
                         min="1"
-                        value="10000"
+                        step="0.01"
+                        required
+                        placeholder="e.g. 10000"
                         class="w-full bg-transparent border-b-2 border-surface-container-highest focus:border-primary focus:ring-0 py-4 text-xl font-medium text-on-surface text-center md:text-left pr-16"
                     />
 
@@ -72,37 +76,24 @@
                     <span class="text-[13px] font-bold text-[#000000] uppercase tracking-widest">
                         Investment products
                     </span>
-
-                    <span id="product-type-chevron" class="material-symbols-outlined"> expand_more </span>
                 </button>
 
                 <div id="product-type-content" class="filter-content px-1 pb-4">
                     <div class="flex flex-col space-y-3 pt-2">
                         <label class="flex items-center space-x-3">
                             <input
+                                data-product-filter="bank_deposits"
                                 type="checkbox"
                                 checked
                                 class="w-5 h-5 rounded border-outline-variant text-primary"
                             />
 
-                            <span class="text-on-surface font-medium"> Bank deposits requiring a bank account </span>
+                            <span class="text-on-surface font-medium"> Bank deposits</span>
                         </label>
-
-                        <label class="flex items-center space-x-3">
-                            <input
-                                type="checkbox"
-                                checked
-                                class="w-5 h-5 rounded border-outline-variant text-primary"
-                            />
-
-                            <span class="text-on-surface font-medium">
-                                Bank deposits without requiring a bank account
-                            </span>
-                        </label>
-
                         <label class="flex items-center space-x-3">
                             <input
                                 id="checkbox-bonds"
+                                data-product-filter="treasury_bonds"
                                 type="checkbox"
                                 checked
                                 class="w-5 h-5 rounded border-outline-variant text-primary"
@@ -123,14 +114,13 @@
                     <span class="text-[13px] font-bold text-[#000000] uppercase tracking-widest">
                         Interest payout method
                     </span>
-
-                    <span id="payout-chevron" class="material-symbols-outlined"> expand_more </span>
                 </button>
 
                 <div id="payout-content" class="filter-content px-1 pb-4">
                     <div class="flex flex-col space-y-3 pt-2">
                         <label class="flex items-center space-x-3">
                             <input
+                                data-payout-filter="at_end"
                                 type="checkbox"
                                 checked
                                 class="w-5 h-5 rounded border-outline-variant text-primary"
@@ -141,6 +131,7 @@
 
                         <label class="flex items-center space-x-3">
                             <input
+                                data-payout-filter="during_term"
                                 type="checkbox"
                                 checked
                                 class="w-5 h-5 rounded border-outline-variant text-primary"
@@ -152,21 +143,33 @@
                 </div>
             </div>
         </div>
-    </section>
+        <button
+            type="submit"
+            class="mt-8 w-full bg-primary text-on-primary font-bold py-4 rounded-lg flex items-center justify-center gap-2 hover:bg-primary-container transition-colors"
+        >
+            Find recommendations
+            <span class="material-symbols-outlined">search</span>
+        </button>
+    </form>
 
     <!-- Recommendations -->
-    <section class="space-y-8 max-w-5xl mx-auto">
+    <section id="recommendations" class="space-y-8 max-w-5xl mx-auto" hidden>
         <h2 class="text-2xl font-bold text-on-surface text-center font-headline">Recommended</h2>
 
-        <div class="flex flex-col space-y-6">
-            {% for product in products %} {% include "components/product_card.html" %} {% else %}
-
-            <div class="py-12 text-center">
-                <p class="text-lg font-medium">We could not find any solutions that match your criteria.</p>
-            </div>
-
-            {% endfor %}
+        <div id="recommendation-list" class="flex flex-col space-y-6">
+            {% for product in products %} {% include "components/product_card.html" %} {% endfor %}
         </div>
+        <p id="no-recommendations" class="py-12 text-center text-lg font-medium" hidden>
+            We could not find any solutions that match your criteria.
+        </p>
+        <button
+            id="show-more-recommendations"
+            type="button"
+            class="mx-auto block border border-primary text-primary font-bold px-8 py-3 rounded-lg hover:bg-primary/5 transition-colors"
+            hidden
+        >
+            Show more
+        </button>
     </section>
 </main>
 
@@ -185,10 +188,9 @@
         max-height: 800px;
         opacity: 1;
     }
+    [hidden] {
+        display: none !important;
+    }
 </style>
-
-{% endblock %} {% block extra_scripts %}
-
-<script src="{{ url_for('static', path='js/main.js') }}"></script>
 
 {% endblock %}

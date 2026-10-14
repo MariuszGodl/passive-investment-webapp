@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 
 from app.db_functions import get_offer_by_variant_id, get_offers
+from app.schemas.investment_request import InvestmentRequest
 from app.schemas.user import User
 
 router = APIRouter()
@@ -11,6 +12,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 app_user = User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")
 LOGGED_IN: bool = True
+investment_details: dict[int, dict] = {}
 
 
 @router.get("/", name="invest_page")
@@ -47,6 +49,7 @@ def my_investments_page(request: Request):
         context={
             "products": get_offers(variant_ids=app_user.investments, active_only=False),
             "user": app_user if LOGGED_IN else None,
+            "investment_details": investment_details,
         },
     )
 
@@ -103,13 +106,16 @@ async def toggle_favorite(variant_id: int):
 
 
 @router.post("/api/my_investments/{variant_id}", name="add_investment")
-async def add_investment(variant_id: int):
+async def add_investment(variant_id: int, investment: InvestmentRequest | None = None):
     if variant_id not in app_user.investments:
         app_user.investments.append(variant_id)
+    if investment is not None:
+        investment_details[variant_id] = investment.model_dump()
 
     return {
         "variant_id": variant_id,
         "investments": app_user.investments,
+        "investment": investment_details.get(variant_id),
     }
 
 

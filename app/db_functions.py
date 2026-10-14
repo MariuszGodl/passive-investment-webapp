@@ -126,6 +126,13 @@ def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
         "id": row["product_id"],
         "variant_id": row["variant_id"],
         "variant_code": row["variant_code"],
+        "product_type": product_type,
+        "term_days": term_days,
+        "min_amount": _format_decimal(min_amount),
+        "max_amount": _format_decimal(max_amount),
+        "annual_rate": _format_decimal(interest_rate * Decimal("100"))
+        if interest_rate is not None
+        else None,
         "institution_name": row["institution_name"],
         "name": row["name"],
         "badge": _PRODUCT_TYPE_LABELS.get(
