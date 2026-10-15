@@ -85,7 +85,67 @@ if (showMoreButton) {
     });
 }
 
-function showRecommendations(event) {
+
+const detailEstimate = document.getElementById("detail-estimated-profit");
+if (detailEstimate) {
+    const configuration = sessionStorage.getItem("investmentConfiguration");
+    if (configuration && !detailEstimate.dataset.savedInvestment) {
+        try {
+            const { amount } = JSON.parse(configuration);
+            const variantId = Number(detailEstimate.dataset.variantId);
+            if (amount > 0 && variantId) {
+                fetch("/api/estimates", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount, variant_ids: [variantId] }),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Could not calculate estimated return");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        detailEstimate.textContent = `${data.estimates[variantId] ?? "--"} ${detailEstimate.dataset.currency}`;
+                        renderCashFlows(data.cash_flows[variantId] ?? []);
+                    })
+                    .catch((error) => console.error("Could not calculate estimated return:", error));
+            }
+        } catch (error) {
+            console.error("Could not read investment configuration:", error);
+        }
+    }
+}
+
+function renderCashFlows(flows) {
+    const tableBody = document.getElementById("cash-flow-rows");
+    if (!tableBody) return;
+
+    tableBody.replaceChildren();
+    if (flows.length === 0) {
+        const row = tableBody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 3;
+        cell.className = "px-6 py-4 text-sm text-on-surface-variant";
+        cell.textContent = "A cash-flow schedule is unavailable for this offer.";
+        return;
+    }
+
+    flows.forEach((flow) => {
+        const row = tableBody.insertRow();
+        const dateCell = row.insertCell();
+        const operationCell = row.insertCell();
+        const amountCell = row.insertCell();
+        dateCell.className = "px-6 py-4 text-sm text-on-surface-variant";
+        operationCell.className = "px-6 py-4 text-sm text-on-surface-variant";
+        amountCell.className = "px-6 py-4 text-sm text-on-surface-variant text-right";
+        dateCell.textContent = flow.date;
+        operationCell.textContent = flow.operation;
+        amountCell.textContent = `${flow.amount} ${flow.currency}`;
+    });
+}
+
+async function showRecommendations(event) {
     event.preventDefault();
 
     const amount = Number(document.getElementById("input-amount").value);
@@ -136,6 +196,32 @@ function showRecommendations(event) {
         card.hidden = index >= 5;
         document.getElementById("recommendation-list").appendChild(card);
     });
+
+    if (matches.length > 0) {
+        try {
+            const response = await fetch("/api/estimates", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount,
+                    variant_ids: matches.map((card) => Number(card.dataset.variantId)),
+                }),
+            });
+            if (!response.ok) {
+                throw new Error("Could not calculate estimated returns");
+            }
+
+            const data = await response.json();
+            matches.forEach((card) => {
+                const estimatedProfit = card.querySelector("[data-estimated-profit]");
+                const estimatedAmount = card.querySelector("[data-estimated-amount]");
+                estimatedProfit.textContent = data.estimates[card.dataset.variantId] ?? "--";
+                estimatedAmount.textContent = amount.toString();
+            });
+        } catch (error) {
+            console.error("Could not calculate estimated returns:", error);
+        }
+    }
 
     document.getElementById("recommendations").hidden = false;
     document.getElementById("no-recommendations").hidden = matches.length > 0;

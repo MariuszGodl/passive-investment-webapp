@@ -1,6 +1,7 @@
 <a
-    href="{{ url_for('product_detail', variant_id=product.variant_id) }}"
+    href="{{ url_for('product_detail', variant_id=product.variant_id) }}{% if product.investment %}?investment_id={{ product.investment.investment_id }}{% endif %}"
     data-product-card
+    data-variant-id="{{ product.variant_id }}"
     data-product-type="{{ product.product_type }}"
     data-term-days="{{ product.term_days if product.term_days is not none else '' }}"
     data-min-amount="{{ product.min_amount if product.min_amount is not none else '' }}"
@@ -37,9 +38,14 @@
             </span>
         </div>
 
-        {% if investment_details and product.variant_id in investment_details %}
+        {% if product.investment %}
         <p class="text-sm font-semibold text-on-surface">
-            Invested {{ investment_details[product.variant_id].amount }} PLN for {{ investment_details[product.variant_id].horizon_months }} months
+            {% if product.investment.amount is not none %}
+            Invested {{ product.investment.amount }} PLN for {{ product.investment.horizon_months }} months.
+            Estimated return: {{ product.estimated_profit or "--" }} {{ product.currency }}.
+            {% else %}
+            Investment saved without an amount.
+            {% endif %}
         </p>
         {% endif %}
 
@@ -54,17 +60,21 @@
             <div
                 class="bg-primary text-on-primary px-6 py-4 rounded-2xl font-bold shadow-lg shadow-primary/10 flex flex-col items-center md:items-end min-w-[200px]"
             >
-                <span class="text-2xl tracking-tight"> + {{ product.interest_rate }}% </span>
+                <span class="text-2xl tracking-tight">
+                    APY {% if product.apy is not none %}{{ product.apy }}%{% else %}--{% endif %}
+                </span>
+                <span class="text-xs opacity-80">Nominal rate {{ product.interest_rate }}%</span>
 
                 <div class="w-full h-px bg-white/20 my-2"></div>
 
                 <span class="text-sm opacity-90">
                     estimated return
-                    {% if product.estimated_profit is not none %}
-                        {{ product.estimated_profit }} {{ product.currency }}
-                    {% else %}
-                        to be calculated
-                    {% endif %}
+                    <span data-estimated-profit>{{ product.estimated_profit or "--" }}</span>
+                    {{ product.currency }}
+                </span>
+                <span class="text-xs opacity-80">
+                    on <span data-estimated-amount>{{ product.estimated_amount or "minimum investment" }}</span>
+                    {% if product.estimated_amount %}{{ product.currency }}{% endif %}
                 </span>
             </div>
 

@@ -104,12 +104,22 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-outline-variant/10">
+                                <tbody id="cash-flow-rows" class="divide-y divide-outline-variant/10">
+                                    {% for flow in product.cash_flows %}
                                     <tr>
-                                        <td colspan="3" class="px-6 py-4 text-sm text-on-surface-variant">
-                                            Cash-flow amounts will appear after the estimated-return calculation is implemented.
+                                        <td class="px-6 py-4 text-sm text-on-surface-variant">{{ flow.date }}</td>
+                                        <td class="px-6 py-4 text-sm text-on-surface-variant">{{ flow.operation }}</td>
+                                        <td class="px-6 py-4 text-sm text-on-surface-variant text-right">
+                                            {{ flow.amount }} {{ flow.currency }}
                                         </td>
                                     </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="px-6 py-4 text-sm text-on-surface-variant">
+                                            A cash-flow schedule is unavailable for this offer.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -144,13 +154,30 @@
                         </span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+                        <span class="text-sm text-on-surface">Annual percentage yield (APY)</span>
+                        <span class="font-bold text-on-surface">
+                            {% if product.apy is not none %}{{ product.apy }}%{% else %}--{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
                         <span class="text-sm text-on-surface">Investment value</span>
                         <span class="font-bold text-on-surface">{{ product.amount_range }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
                         <span class="text-sm text-on-surface">Estimated profit</span>
-                        <span class="font-bold text-on-surface">
-                            {% if product.estimated_profit is not none %}{{ product.estimated_profit }} {{ product.currency }}{% else %}To be calculated{% endif %}
+                        <span
+                            id="detail-estimated-profit"
+                            data-variant-id="{{ product.variant_id }}"
+                            data-currency="{{ product.currency }}"
+                            {% if investment %}
+                            data-saved-investment="true"
+                            {% endif %}
+                            {% if investment and investment.amount is not none %}
+                            data-investment-amount="{{ investment.amount }}"
+                            {% endif %}
+                            class="font-bold text-on-surface"
+                        >
+                            {% if product.estimated_profit is not none %}{{ product.estimated_profit }} {{ product.currency }}{% else %}--{% endif %}
                         </span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">

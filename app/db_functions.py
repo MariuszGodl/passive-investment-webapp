@@ -1,6 +1,8 @@
 import os
+from calendar import monthrange
 from collections.abc import Mapping, Sequence
-from decimal import Decimal
+from datetime import date, timedelta
+from decimal import Decimal, ROUND_HALF_UP
 from functools import lru_cache
 from typing import Any
 
@@ -53,6 +55,15 @@ _CAPITALIZATION_LABELS = {
     "at_promo_end": "At promotion end",
 }
 
+_COMPOUNDING_PERIODS = {
+    "daily": 365,
+    "monthly": 12,
+    "quarterly": 4,
+    "annual": 1,
+}
+_DAYS_PER_YEAR = Decimal("365")
+_MONEY_QUANTUM = Decimal("0.01")
+
 
 @lru_cache(maxsize=1)
 def _get_engine() -> Engine:
@@ -97,15 +108,184 @@ def _format_amount_range(
     return "Not specified"
 
 
+def _term_years(
+    term_days: int | None,
+    term_value: Decimal | None,
+    term_unit: str | None,
+) -> Decimal | None:
+    if term_value is not None and term_unit == "months":
+        return term_value / Decimal(12)
+    if term_value is not None and term_unit == "days":
+        return term_value / _DAYS_PER_YEAR
+    if term_days is None:
+        return None
+    return Decimal(term_days) / _DAYS_PER_YEAR
+
+
+def _add_months(start_date: date, months: int) -> date:
+    month_index = start_date.year * 12 + start_date.month - 1 + months
+    year, month_index = divmod(month_index, 12)
+    month = month_index + 1
+    day = min(start_date.day, monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def _investment_growth_factor(
+    annual_rate: Decimal | None,
+    term_days: int | None,
+    capitalization: str | None,
+    *,
+    term_value: Decimal | None = None,
+    term_unit: str | None = None,
+    bond_code: str | None = None,
+    cpi_rate: Decimal | None = None,
+    bond_margin: Decimal | None = None,
+    nbp_reference_rate: Decimal | None = None,
+) -> Decimal | None:
+    years = _term_years(term_days, term_value, term_unit)
+    if annual_rate is None or years is None or years <= 0:
+        return None
+
+    if bond_code is not None:
+        code = bond_code.upper()
+        if code == "OTS":
+            if years >= 1:
+                return None
+            return (Decimal(1) + annual_rate / 4) ** (4 * years)
+        if code == "TOS":
+            return (Decimal(1) + annual_rate) ** years
+        if code in {"EDO", "ROS", "ROD", "COI"}:
+            if years < 1 or cpi_rate is None or bond_margin is None:
+                return None
+            return (Decimal(1) + annual_rate) * (
+                Decimal(1) + cpi_rate + bond_margin
+            ) ** (years - 1)
+        if code in {"ROR", "DOR"}:
+            if bond_margin is None or nbp_reference_rate is None:
+                return None
+            return (Decimal(1) + annual_rate / 12) * (
+                Decimal(1) + (nbp_reference_rate + bond_margin) / 12
+            ) ** (12 * years - 1)
+        return None
+
+    if capitalization in {"at_maturity", "at_promo_end"}:
+        return Decimal(1) + annual_rate * years
+
+    periods = _COMPOUNDING_PERIODS.get(capitalization or "")
+    if periods is None:
+        return None
+    return (Decimal(1) + annual_rate / periods) ** (periods * years)
+
+
+def calculate_apy(
+    annual_rate: Decimal | None,
+    term_days: int | None,
+    capitalization: str | None,
+    *,
+    term_value: Decimal | None = None,
+    term_unit: str | None = None,
+    bond_code: str | None = None,
+    cpi_rate: Decimal | None = None,
+    bond_margin: Decimal | None = None,
+    nbp_reference_rate: Decimal | None = None,
+) -> Decimal | None:
+    """Calculate APY as a decimal fraction using the deposit or bond diagram."""
+    years = _term_years(term_days, term_value, term_unit)
+    if years is None or years <= 0:
+        return None
+
+    growth_factor = _investment_growth_factor(
+        annual_rate,
+        term_days,
+        capitalization,
+        term_value=term_value,
+        term_unit=term_unit,
+        bond_code=bond_code,
+        cpi_rate=cpi_rate,
+        bond_margin=bond_margin,
+        nbp_reference_rate=nbp_reference_rate,
+    )
+    if growth_factor is None or growth_factor <= 0:
+        return None
+
+    if bond_code is not None and bond_code.upper() == "TOS":
+        return annual_rate
+    return growth_factor ** (Decimal(1) / years) - Decimal(1)
+
+
 def calculate_estimated_profit(
     annual_rate: Decimal | None,
     investment_amount: Decimal | None,
     term_days: int | None,
+    capitalization: str | None = "at_maturity",
+    *,
+    term_value: Decimal | None = None,
+    term_unit: str | None = None,
+    bond_code: str | None = None,
+    cpi_rate: Decimal | None = None,
+    bond_margin: Decimal | None = None,
+    nbp_reference_rate: Decimal | None = None,
 ) -> str | None:
-    """Placeholder for estimated-return calculation."""
-    if annual_rate is None or investment_amount is None or term_days is None:
+    """Return gross interest for the investment term, rounded to cents."""
+    if investment_amount is None:
         return None
-    return "12345"
+
+    growth_factor = _investment_growth_factor(
+        annual_rate,
+        term_days,
+        capitalization,
+        term_value=term_value,
+        term_unit=term_unit,
+        bond_code=bond_code,
+        cpi_rate=cpi_rate,
+        bond_margin=bond_margin,
+        nbp_reference_rate=nbp_reference_rate,
+    )
+    if growth_factor is None:
+        return None
+
+    profit = (investment_amount * (growth_factor - Decimal(1))).quantize(
+        _MONEY_QUANTUM,
+        rounding=ROUND_HALF_UP,
+    )
+    return format(profit, "f")
+
+
+def calculate_cash_flow_schedule(
+    investment_amount: Decimal | None,
+    estimated_profit: str | None,
+    term_days: int | None,
+    currency: str,
+    *,
+    start_date: date | None = None,
+    term_value: Decimal | None = None,
+    term_unit: str | None = None,
+) -> list[dict[str, str]]:
+    """Return the initial investment and maturity cash flows for an offer."""
+    if investment_amount is None or estimated_profit is None or term_days is None or term_days <= 0:
+        return []
+
+    start_date = start_date or date.today()
+    if term_value is not None and term_unit == "months" and term_value == term_value.to_integral_value():
+        maturity_date = _add_months(start_date, int(term_value))
+    else:
+        maturity_date = start_date + timedelta(days=term_days)
+    principal = investment_amount.quantize(_MONEY_QUANTUM, rounding=ROUND_HALF_UP)
+    return_amount = principal + Decimal(estimated_profit)
+    return [
+        {
+            "date": start_date.isoformat(),
+            "operation": "Initial investment",
+            "amount": format(-principal, "f"),
+            "currency": currency,
+        },
+        {
+            "date": maturity_date.isoformat(),
+            "operation": "Maturity payout (principal + interest)",
+            "amount": format(return_amount, "f"),
+            "currency": currency,
+        },
+    ]
 
 
 def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
@@ -121,6 +301,40 @@ def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
     term_days = row["term_days"]
     min_amount = row["min_amount"]
     max_amount = row["max_amount"]
+    apy = calculate_apy(
+        interest_rate,
+        term_days,
+        capitalization,
+        term_value=row["term_value"],
+        term_unit=row["term_unit"],
+    )
+    apy_percent = (
+        format(
+            (apy * Decimal("100")).quantize(
+                Decimal("0.01"),
+                rounding=ROUND_HALF_UP,
+            ),
+            ".2f",
+        )
+        if apy is not None
+        else None
+    )
+    estimated_profit = calculate_estimated_profit(
+        interest_rate,
+        min_amount,
+        term_days,
+        capitalization,
+        term_value=row["term_value"],
+        term_unit=row["term_unit"],
+    )
+    cash_flows = calculate_cash_flow_schedule(
+        min_amount,
+        estimated_profit,
+        term_days,
+        currency,
+        term_value=row["term_value"],
+        term_unit=row["term_unit"],
+    )
 
     return {
         "id": row["product_id"],
@@ -128,11 +342,16 @@ def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
         "variant_code": row["variant_code"],
         "product_type": product_type,
         "term_days": term_days,
+        "term_value": _format_decimal(row["term_value"]),
+        "term_unit": row["term_unit"],
         "min_amount": _format_decimal(min_amount),
         "max_amount": _format_decimal(max_amount),
         "annual_rate": _format_decimal(interest_rate * Decimal("100"))
         if interest_rate is not None
         else None,
+        "annual_rate_decimal": _format_decimal(interest_rate),
+        "apy": apy_percent,
+        "estimated_amount": _format_decimal(min_amount),
         "institution_name": row["institution_name"],
         "name": row["name"],
         "badge": _PRODUCT_TYPE_LABELS.get(
@@ -160,11 +379,8 @@ def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
             capitalization,
             "Capitalization not recorded",
         ),
-        "estimated_profit": calculate_estimated_profit(
-            interest_rate,
-            min_amount,
-            term_days,
-        ),
+        "estimated_profit": estimated_profit,
+        "cash_flows": cash_flows,
         "valid_from": row["valid_from"],
         "valid_to": row["valid_to"],
         "interest_payout": None,
