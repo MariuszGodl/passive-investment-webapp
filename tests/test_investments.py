@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app import main
 from app.api.routes import pages
-from app.db_functions import _map_offer
+from app.db_and_finance_functions import _map_offer
 
 
 def test_repeated_investments_keep_distinct_amounts_and_detail_links(monkeypatch):

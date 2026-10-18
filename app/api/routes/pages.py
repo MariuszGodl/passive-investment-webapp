@@ -5,7 +5,7 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 
-from app.db_functions import (
+from app.db_and_finance_functions import (
     calculate_cash_flow_schedule,
     calculate_estimated_profit,
     get_offer_by_variant_id,

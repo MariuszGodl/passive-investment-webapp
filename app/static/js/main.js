@@ -229,15 +229,6 @@ async function showRecommendations(event) {
     document.getElementById("recommendations").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function toggleFilter(contentId, chevronId) {
-    const content = document.getElementById(contentId);
-    const chevron = document.getElementById(chevronId);
-
-    if (!content) return;
-    content.classList.toggle("expanded");
-    chevron?.classList.toggle("rotate-180");
-}
-
 function togglePasswordVisibility() {
     const pwdInput = document.getElementById("signin-password");
     const eyeIcon = document.getElementById("pwdEyeIcon");

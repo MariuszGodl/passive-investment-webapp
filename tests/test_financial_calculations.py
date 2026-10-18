@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from app.db_functions import (
+from app.db_and_finance_functions import (
     _map_offer,
     calculate_apy,
     calculate_cash_flow_schedule,
