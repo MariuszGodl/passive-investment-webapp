@@ -262,11 +262,20 @@ def calculate_cash_flow_schedule(
     term_unit: str | None = None,
 ) -> list[dict[str, str]]:
     """Return the initial investment and maturity cash flows for an offer."""
-    if investment_amount is None or estimated_profit is None or term_days is None or term_days <= 0:
+    if (
+        investment_amount is None
+        or estimated_profit is None
+        or term_days is None
+        or term_days <= 0
+    ):
         return []
 
     start_date = start_date or date.today()
-    if term_value is not None and term_unit == "months" and term_value == term_value.to_integral_value():
+    if (
+        term_value is not None
+        and term_unit == "months"
+        and term_value == term_value.to_integral_value()
+    ):
         maturity_date = _add_months(start_date, int(term_value))
     else:
         maturity_date = start_date + timedelta(days=term_days)
