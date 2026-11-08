@@ -114,6 +114,55 @@ def insert_variants(conn, df: pd.DataFrame):
     print(f"Inserted/Updated {len(variants_df)} variants")
 
 
+BOND_COLUMNS = [
+    "symbol",
+    "duration",
+    "rate_type",
+    "interest_mechanism",
+    None,  # APY - calculated
+    None,  # investment value - user input
+    None,  # estimated profit - calculated
+    "capitalization",
+    "interest_payout",
+    "interest_payout_freq",
+    "inflation_indexed",
+    "early_redemption",
+    "interest_rate",
+    "institution_name",
+    "name",
+    "cash_flow_dates",
+    "cash_flow_names",
+    "additional_requirement_1",
+    "additional_requirement_2",
+]
+
+
+def insert_bonds(conn, csv_path: str):
+    """Loads bonds CSV and inserts rows into the bond table."""
+    print(f"Loading bonds from {csv_path}...")
+    df = pd.read_csv(csv_path, dtype=str)
+    df.columns = BOND_COLUMNS
+    df = df[[c for c in BOND_COLUMNS if c]]
+    df = df.apply(lambda col: col.str.strip()).replace({np.nan: None, "-": None})
+
+    df["rate_type"] = df["rate_type"].str.lower()
+    df["interest_rate"] = (
+        df["interest_rate"].str.rstrip("%").str.replace(",", ".").astype(float) / 100
+    )
+    for col in ["interest_payout", "inflation_indexed", "early_redemption"]:
+        df[col] = df[col] == "Yes"
+
+    for row in df.to_dict("records"):
+        conn.execute(
+            text(f"""
+                INSERT INTO bond ({", ".join(row)})
+                VALUES ({", ".join(":" + k for k in row)})
+            """),
+            row,
+        )
+    print(f"Inserted {len(df)} bonds")
+
+
 def main():
     db_url = os.environ.get(
         "DATABASE_URL",
@@ -128,6 +177,7 @@ def main():
         insert_banks(conn, df)
         insert_products(conn, df)
         insert_variants(conn, df)
+        insert_bonds(conn, "data/raw/technical-details-bonds.csv")
 
 
 if __name__ == "__main__":
