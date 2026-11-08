@@ -45,13 +45,16 @@ def test_compound_deposit_apy_uses_diagram_frequency(capitalization, periods):
     rate = Decimal("0.06")
     expected = (Decimal(1) + rate / periods) ** periods - Decimal(1)
 
-    assert calculate_apy(
-        rate,
-        365,
-        capitalization,
-        term_value=Decimal(12),
-        term_unit="months",
-    ) == expected
+    assert (
+        calculate_apy(
+            rate,
+            365,
+            capitalization,
+            term_value=Decimal(12),
+            term_unit="months",
+        )
+        == expected
+    )
 
 
 def test_three_month_deposit_uses_exact_term_units_for_return():
@@ -64,15 +67,19 @@ def test_three_month_deposit_uses_exact_term_units_for_return():
         "monthly",
         term_value=Decimal(3),
         term_unit="months",
-    ) == expected_growth ** 4 - Decimal(1)
-    assert calculate_estimated_profit(
-        rate,
-        Decimal("10000"),
-        91,
-        "monthly",
-        term_value=Decimal(3),
-        term_unit="months",
-    ) == "112.92"
+    ) == expected_growth**4 - Decimal(1)
+
+    assert (
+        calculate_estimated_profit(
+            rate,
+            Decimal("10000"),
+            91,
+            "monthly",
+            term_value=Decimal(3),
+            term_unit="months",
+        )
+        == "112.92"
+    )
 
 
 @pytest.mark.parametrize(
@@ -144,9 +151,12 @@ def test_cash_flow_schedule_has_initial_outflow_and_single_maturity_payout():
 @pytest.mark.parametrize("capitalization", [None, "unknown"])
 def test_unknown_deposit_capitalization_returns_no_estimate(capitalization):
     assert calculate_apy(Decimal("0.05"), 365, capitalization) is None
-    assert calculate_estimated_profit(
-        Decimal("0.05"), Decimal("10000"), 365, capitalization
-    ) is None
+    assert (
+        calculate_estimated_profit(
+            Decimal("0.05"), Decimal("10000"), 365, capitalization
+        )
+        is None
+    )
 
 
 def test_ots_bond_apy_uses_quarterly_annualization():
@@ -164,14 +174,17 @@ def test_indexed_bond_apy_uses_first_year_rate_then_cpi_and_margin(bond_code):
     growth_factor = Decimal("1.06") * Decimal("1.03") ** 2
     expected = growth_factor ** (Decimal(1) / Decimal(3)) - Decimal(1)
 
-    assert calculate_apy(
-        Decimal("0.06"),
-        1095,
-        None,
-        bond_code=bond_code,
-        cpi_rate=Decimal("0.02"),
-        bond_margin=Decimal("0.01"),
-    ) == expected
+    assert (
+        calculate_apy(
+            Decimal("0.06"),
+            1095,
+            None,
+            bond_code=bond_code,
+            cpi_rate=Decimal("0.02"),
+            bond_margin=Decimal("0.01"),
+        )
+        == expected
+    )
 
 
 @pytest.mark.parametrize("bond_code", ["ROR", "DOR"])
