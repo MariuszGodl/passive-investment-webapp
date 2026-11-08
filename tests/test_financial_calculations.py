@@ -61,16 +61,13 @@ def test_three_month_deposit_uses_exact_term_units_for_return():
     rate = Decimal("0.045")
     expected_growth = (Decimal(1) + rate / 12) ** 3
 
-    assert(
-        calculate_apy(
-            rate,
-            91,
-            "monthly",
-            term_value=Decimal(3),
-            term_unit="months",
-        )
-        == expected_growth ** 4 - Decimal(1)
-    )
+    assert calculate_apy(
+        rate,
+        91,
+        "monthly",
+        term_value=Decimal(3),
+        term_unit="months",
+    ) == expected_growth ** 4 - Decimal(1)
 
     assert (
         calculate_estimated_profit(
