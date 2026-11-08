@@ -19,7 +19,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
-app_user = User(full_name="Piotr Cherek", email="x@gmail.com", password="qweqwe")
+app_user = User(full_name="Admin", email="x@gmail.com", password="qweqwe")
 LOGGED_IN: bool = True
 investment_details: dict[str, dict] = {}
 
@@ -231,35 +231,3 @@ async def estimate_products(estimate: ProductEstimateRequest):
             term_unit=product["term_unit"],
         )
     return {"estimates": estimates, "cash_flows": cash_flows}
-
-
-@router.post("/api/users")
-async def create_user(user: User):
-    print(user)
-
-    return {
-        "message": "User created",
-        "email": user.email,
-    }
-
-
-# @router.post("/api/login")
-# async def login(user: LoginRequest):
-#     db_user =
-#
-#     if db_user is None:
-#         raise HTTPException(
-#             status_code=401,
-#             detail="Invalid email or password"
-#         )
-#
-#     if not verify_password(user.password, db_user.password_hash):
-#         raise HTTPException(
-#             status_code=401,
-#             detail="Invalid email or password"
-#         )
-#
-#     return {
-#         "message": "Login successful",
-#         "email": db_user.email,
-#     }

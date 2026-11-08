@@ -44,10 +44,15 @@ async function navBarRouting(event, btn, logged_in, path) {
     window.location.href = path;
 }
 
-async function addInvestment(event, btn, variant_id) {
+async function addInvestment(event, btn, variant_id, logged_in) {
     event.stopPropagation();
 
     try {
+        if (!logged_in) {
+            window.location.href = "/login";
+            return;
+        }
+
         const investment = sessionStorage.getItem("investmentConfiguration");
         const options = { method: "POST" };
         if (investment) {
