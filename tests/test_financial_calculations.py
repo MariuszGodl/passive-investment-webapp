@@ -67,7 +67,7 @@ def test_three_month_deposit_uses_exact_term_units_for_return():
         "monthly",
         term_value=Decimal(3),
         term_unit="months",
-    ) == expected_growth ** 4 - Decimal(1)
+    ) == expected_growth**4 - Decimal(1)
 
     assert (
         calculate_estimated_profit(
