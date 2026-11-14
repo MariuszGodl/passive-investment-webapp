@@ -25,6 +25,9 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: DATABASE_URL
+            # Trust X-Forwarded-Proto from Traefik so url_for() emits https:// URLs
+            - name: FORWARDED_ALLOW_IPS
+              value: "*"
 ---
 apiVersion: v1
 kind: Service
