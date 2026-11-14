@@ -24,17 +24,18 @@ SELECT
     p.product_type::text AS product_type,
     ov.variant_code,
     ov.interest_rate,
+    ov.apy,
     ov.rate_type::text AS rate_type,
     ov.term_value,
     ov.term_unit::text AS term_unit,
     ov.term_days,
-    ov.min_amount,
-    ov.max_amount,
     ov.currency,
     ov.capitalization::text AS capitalization,
-    ov.additional_condition,
-    ov.valid_from,
-    ov.valid_to
+    ov.interest_payout,
+    ov.inflation_indexed,
+    ov.early_termination,
+    ov.interest_details,
+    ov.additional_condition
 FROM offer_variant AS ov
 JOIN product AS p ON p.id = ov.product_id
 JOIN bank AS b ON b.id = p.bank_id
@@ -308,15 +309,17 @@ def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
         else None
     )
     term_days = row["term_days"]
-    min_amount = row["min_amount"]
-    max_amount = row["max_amount"]
-    apy = calculate_apy(
-        interest_rate,
-        term_days,
-        capitalization,
-        term_value=row["term_value"],
-        term_unit=row["term_unit"],
-    )
+    min_amount = None
+    max_amount = None
+    apy = row.get("apy")
+    if apy is None:
+        apy = calculate_apy(
+            interest_rate,
+            term_days,
+            capitalization,
+            term_value=row["term_value"],
+            term_unit=row["term_unit"],
+        )
     apy_percent = (
         format(
             (apy * Decimal("100")).quantize(
@@ -390,39 +393,24 @@ def _map_offer(row: Mapping[Any, Any]) -> dict[str, Any]:
         ),
         "estimated_profit": estimated_profit,
         "cash_flows": cash_flows,
-        "valid_from": row["valid_from"],
-        "valid_to": row["valid_to"],
-        "interest_payout": None,
-        "inflation_indexed": None,
-        "early_termination": None,
-        "interest_details": None,
+        "interest_payout": row.get("interest_payout"),
+        "inflation_indexed": row.get("inflation_indexed"),
+        "early_termination": row.get("early_termination"),
+        "interest_details": row.get("interest_details"),
     }
 
 
 def get_offers(
     variant_ids: Sequence[int] | None = None,
-    *,
-    active_only: bool = True,
 ) -> list[dict[str, Any]]:
     """Return offer variants joined with their product and bank data."""
     if variant_ids is not None and not variant_ids:
         return []
 
-    query = (
-        _OFFER_SELECT
-        + """
-        WHERE (
-            NOT :active_only
-            OR (
-                (ov.valid_from IS NULL OR ov.valid_from <= CURRENT_DATE)
-                AND (ov.valid_to IS NULL OR ov.valid_to >= CURRENT_DATE)
-            )
-        )
-    """
-    )
-    parameters: dict[str, Any] = {"active_only": active_only}
+    query = _OFFER_SELECT
+    parameters: dict[str, Any] = {}
     if variant_ids is not None:
-        query += " AND ov.id IN :variant_ids"
+        query += " WHERE ov.id IN :variant_ids"
         parameters["variant_ids"] = list(variant_ids)
 
     query += " ORDER BY b.name, p.name, ov.term_days NULLS LAST, ov.interest_rate DESC, ov.id"
@@ -436,7 +424,7 @@ def get_offers(
 
 
 def get_offer_by_variant_id(variant_id: int) -> dict[str, Any] | None:
-    """Return one offer variant, including expired variants, for its detail page."""
+    """Return one offer variant for its detail page."""
     query = _OFFER_SELECT + " WHERE ov.id = :variant_id"
     with _get_engine().connect() as connection:
         row = (
@@ -448,3 +436,137 @@ def get_offer_by_variant_id(variant_id: int) -> dict[str, Any] | None:
             .first()
         )
     return _map_offer(row) if row is not None else None
+
+
+def get_user_by_email(email: str) -> dict[str, Any] | None:
+    with _get_engine().connect() as connection:
+        row = connection.execute(
+            text(
+                "SELECT id, full_name, email, password_hash "
+                "FROM app_user WHERE email = :email"
+            ),
+            {"email": email},
+        ).mappings().first()
+    return dict(row) if row is not None else None
+
+
+def get_user_state(user_id: int) -> dict[str, Any] | None:
+    with _get_engine().connect() as connection:
+        row = connection.execute(
+            text("SELECT id, full_name, email FROM app_user WHERE id = :user_id"),
+            {"user_id": user_id},
+        ).mappings().first()
+        if row is None:
+            return None
+        favorites = connection.execute(
+            text(
+                "SELECT variant_id FROM user_favorite "
+                "WHERE user_id = :user_id ORDER BY created_at, variant_id"
+            ),
+            {"user_id": user_id},
+        ).scalars().all()
+        investments = connection.execute(
+            text(
+                "SELECT variant_id FROM user_investment "
+                "WHERE user_id = :user_id ORDER BY created_at, id"
+            ),
+            {"user_id": user_id},
+        ).scalars().all()
+    return {
+        **dict(row),
+        "favorites": list(favorites),
+        "investments": list(investments),
+    }
+
+
+def create_user(full_name: str, email: str, password_hash: str) -> int:
+    with _get_engine().begin() as connection:
+        user_id = connection.execute(
+            text(
+                "INSERT INTO app_user (full_name, email, password_hash) "
+                "VALUES (:full_name, :email, :password_hash) RETURNING id"
+            ),
+            {
+                "full_name": full_name,
+                "email": email,
+                "password_hash": password_hash,
+            },
+        ).scalar_one()
+    return user_id
+
+
+def toggle_user_favorite(user_id: int, variant_id: int) -> bool:
+    with _get_engine().begin() as connection:
+        deleted = connection.execute(
+            text(
+                "DELETE FROM user_favorite "
+                "WHERE user_id = :user_id AND variant_id = :variant_id"
+            ),
+            {"user_id": user_id, "variant_id": variant_id},
+        )
+        if deleted.rowcount:
+            return False
+        connection.execute(
+            text(
+                "INSERT INTO user_favorite (user_id, variant_id) "
+                "VALUES (:user_id, :variant_id)"
+            ),
+            {"user_id": user_id, "variant_id": variant_id},
+        )
+    return True
+
+
+def get_user_investments(user_id: int) -> list[dict[str, Any]]:
+    with _get_engine().connect() as connection:
+        rows = connection.execute(
+            text(
+                "SELECT id, variant_id, amount, horizon_months, estimated_profit, "
+                "apy, start_date FROM user_investment "
+                "WHERE user_id = :user_id ORDER BY created_at, id"
+            ),
+            {"user_id": user_id},
+        ).mappings().all()
+    return [dict(row) for row in rows]
+
+
+def get_user_investment(user_id: int, investment_id: int) -> dict[str, Any] | None:
+    with _get_engine().connect() as connection:
+        row = connection.execute(
+            text(
+                "SELECT id, variant_id, amount, horizon_months, estimated_profit, "
+                "apy, start_date FROM user_investment "
+                "WHERE user_id = :user_id AND id = :investment_id"
+            ),
+            {"user_id": user_id, "investment_id": investment_id},
+        ).mappings().first()
+    return dict(row) if row is not None else None
+
+
+def create_user_investment(
+    user_id: int,
+    variant_id: int,
+    amount: Decimal | None,
+    horizon_months: int | None,
+    estimated_profit: str | None,
+    apy: Decimal | None,
+) -> dict[str, Any]:
+    with _get_engine().begin() as connection:
+        row = connection.execute(
+            text(
+                "INSERT INTO user_investment "
+                "(user_id, variant_id, amount, horizon_months, estimated_profit, apy) "
+                "VALUES (:user_id, :variant_id, :amount, :horizon_months, "
+                ":estimated_profit, :apy) "
+                "RETURNING id, variant_id, amount, horizon_months, "
+                "estimated_profit, apy, start_date"
+            ),
+            {
+                "user_id": user_id,
+                "variant_id": variant_id,
+                "amount": amount,
+                "horizon_months": horizon_months,
+                "estimated_profit": estimated_profit,
+                "apy": apy,
+            },
+        ).mappings().one()
+    return dict(row)

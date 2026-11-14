@@ -185,19 +185,27 @@
                         <span class="font-bold text-on-surface">{{ product.capitalization_label }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
-                        <span class="text-sm text-on-surface">Offer validity</span>
+                        <span class="text-sm text-on-surface">Interest payout</span>
+                        <span class="font-bold text-on-surface">{{ product.interest_payout or "Not recorded" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+                        <span class="text-sm text-on-surface">Inflation indexed</span>
                         <span class="font-bold text-on-surface">
-                            {% if product.valid_from and product.valid_to %}
-                                {{ product.valid_from.strftime('%Y-%m-%d') }} to {{ product.valid_to.strftime('%Y-%m-%d') }}
-                            {% elif product.valid_from %}
-                                From {{ product.valid_from.strftime('%Y-%m-%d') }}
-                            {% elif product.valid_to %}
-                                Until {{ product.valid_to.strftime('%Y-%m-%d') }}
-                            {% else %}
-                                Not specified
-                            {% endif %}
+                            {% if product.inflation_indexed is not none %}{{ "Yes" if product.inflation_indexed else "No" }}{% else %}Not recorded{% endif %}
                         </span>
                     </div>
+                    <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+                        <span class="text-sm text-on-surface">Early termination</span>
+                        <span class="font-bold text-on-surface">
+                            {% if product.early_termination is not none %}{{ "Available" if product.early_termination else "Unavailable" }}{% else %}Not recorded{% endif %}
+                        </span>
+                    </div>
+                    {% if product.interest_details %}
+                    <div class="py-2 border-b border-outline-variant/10">
+                        <span class="text-sm text-on-surface">Interest details</span>
+                        <p class="mt-1 font-bold text-on-surface">{{ product.interest_details }}</p>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="mt-8">
                     {% set logged_in = 1 if user else 0 %}

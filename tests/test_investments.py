@@ -9,6 +9,50 @@ from app.api.routes import pages
 from app.db_and_finance_functions import _map_offer
 
 
+def test_registration_and_login_store_a_password_hash(monkeypatch):
+    stored = {}
+    user = {
+        "id": 9,
+        "full_name": "Test User",
+        "email": "test@example.com",
+        "favorites": [],
+        "investments": [],
+    }
+
+    def create_user(full_name, email, password_hash):
+        stored["password_hash"] = password_hash
+        return user["id"]
+
+    monkeypatch.setattr(pages, "create_user", create_user)
+    monkeypatch.setattr(pages, "get_user_state", lambda user_id: user)
+    monkeypatch.setattr(
+        pages,
+        "get_user_by_email",
+        lambda email: {**user, "password_hash": stored["password_hash"]},
+    )
+
+    with TestClient(main.app) as client:
+        registered = client.post(
+            "/api/register",
+            json={
+                "full_name": "Test User",
+                "email": "TEST@example.com",
+                "password": "test-password-123",
+            },
+        )
+        assert registered.status_code == 200
+        assert stored["password_hash"] != "test-password-123"
+        assert pages._verify_password("test-password-123", stored["password_hash"])
+
+        client.post("/api/logout")
+        logged_in = client.post(
+            "/api/login",
+            json={"email": "test@example.com", "password": "test-password-123"},
+        )
+        assert logged_in.status_code == 200
+        assert logged_in.json()["user"]["id"] == user["id"]
+
+
 def test_repeated_investments_keep_distinct_amounts_and_detail_links(monkeypatch):
     offer = _map_offer(
         {
@@ -17,8 +61,6 @@ def test_repeated_investments_keep_distinct_amounts_and_detail_links(monkeypatch
             "currency": "PLN",
             "interest_rate": Decimal("0.045"),
             "term_days": 91,
-            "min_amount": Decimal("1000"),
-            "max_amount": None,
             "product_id": 1,
             "variant_id": 7001,
             "variant_code": "DEP-1",
@@ -28,16 +70,51 @@ def test_repeated_investments_keep_distinct_amounts_and_detail_links(monkeypatch
             "term_unit": "months",
             "rate_type": "fixed",
             "additional_condition": None,
-            "valid_from": None,
-            "valid_to": None,
+            "apy": None,
+            "interest_payout": None,
+            "inflation_indexed": None,
+            "early_termination": None,
+            "interest_details": None,
         }
     )
-    previous_investments = list(pages.app_user.investments)
-    previous_details = dict(pages.investment_details)
-    pages.app_user.investments.clear()
-    pages.investment_details.clear()
+    user = {"id": 1, "full_name": "Test User", "email": "test@example.com"}
+    records = []
+
+    def create_investment(user_id, variant_id, amount, horizon_months, profit, apy):
+        record = {
+            "id": len(records) + 1,
+            "variant_id": variant_id,
+            "amount": amount,
+            "horizon_months": horizon_months,
+            "estimated_profit": profit,
+            "apy": apy,
+            "start_date": date.today(),
+        }
+        records.append(record)
+        return record
+
     monkeypatch.setattr(pages, "get_offer_by_variant_id", lambda variant_id: offer)
     monkeypatch.setattr(pages, "get_offers", lambda **kwargs: [offer])
+    monkeypatch.setattr(pages, "_current_user", lambda request: user)
+    monkeypatch.setattr(pages, "get_user_investments", lambda user_id: records)
+    monkeypatch.setattr(pages, "create_user_investment", create_investment)
+    monkeypatch.setattr(
+        pages,
+        "get_user_investment",
+        lambda user_id, investment_id: next(
+            (record for record in records if record["id"] == investment_id),
+            None,
+        ),
+    )
+    monkeypatch.setattr(
+        pages,
+        "get_user_state",
+        lambda user_id: {
+            **user,
+            "favorites": [],
+            "investments": [record["variant_id"] for record in records],
+        },
+    )
 
     try:
         with TestClient(main.app) as client:
@@ -99,6 +176,4 @@ def test_repeated_investments_keep_distinct_amounts_and_detail_links(monkeypatch
             assert estimates["cash_flows"]["7001"][-1]["date"] == expected_maturity_date
             assert estimates["cash_flows"]["7001"][-1]["amount"] == "10112.92"
     finally:
-        pages.app_user.investments[:] = previous_investments
-        pages.investment_details.clear()
-        pages.investment_details.update(previous_details)
+        records.clear()

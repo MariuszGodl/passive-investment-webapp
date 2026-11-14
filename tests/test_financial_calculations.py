@@ -102,8 +102,6 @@ def test_offer_apy_percentage_is_rounded_to_two_decimal_places(
             "currency": "PLN",
             "interest_rate": Decimal(annual_rate),
             "term_days": 365,
-            "min_amount": Decimal("1000"),
-            "max_amount": None,
             "product_id": 1,
             "variant_id": 2,
             "variant_code": "DEP-1",
@@ -113,12 +111,47 @@ def test_offer_apy_percentage_is_rounded_to_two_decimal_places(
             "term_unit": "months",
             "rate_type": "fixed",
             "additional_condition": None,
-            "valid_from": None,
-            "valid_to": None,
+            "apy": None,
+            "interest_payout": None,
+            "inflation_indexed": None,
+            "early_termination": None,
+            "interest_details": None,
         }
     )
 
     assert offer["apy"] == expected_apy
+
+
+def test_offer_mapping_uses_stored_apy_and_new_technical_fields():
+    offer = _map_offer(
+        {
+            "product_type": "term_deposit",
+            "capitalization": "monthly",
+            "currency": "PLN",
+            "interest_rate": Decimal("0.05"),
+            "term_days": 365,
+            "product_id": 1,
+            "variant_id": 2,
+            "variant_code": "DEP-1",
+            "institution_name": "Bank",
+            "name": "Deposit",
+            "term_value": Decimal(12),
+            "term_unit": "months",
+            "rate_type": "fixed",
+            "additional_condition": None,
+            "apy": Decimal("0.061234"),
+            "interest_payout": "Monthly",
+            "inflation_indexed": False,
+            "early_termination": True,
+            "interest_details": "Interest is paid to the linked account.",
+        }
+    )
+
+    assert offer["apy"] == "6.12"
+    assert offer["interest_payout"] == "Monthly"
+    assert offer["inflation_indexed"] is False
+    assert offer["early_termination"] is True
+    assert offer["interest_details"] == "Interest is paid to the linked account."
 
 
 def test_cash_flow_schedule_has_initial_outflow_and_single_maturity_payout():

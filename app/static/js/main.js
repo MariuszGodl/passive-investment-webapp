@@ -75,6 +75,59 @@ async function addInvestment(event, btn, variant_id, logged_in) {
     }
 }
 
+async function submitAccountForm(event, endpoint, payload) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const message = form.querySelector("[role='alert']");
+    message.hidden = true;
+
+    try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.detail || "Unable to complete your request.");
+        }
+        window.location.href = "/";
+    } catch (error) {
+        message.textContent = error.message;
+        message.hidden = false;
+    }
+}
+
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+    loginForm.addEventListener("submit", (event) => {
+        submitAccountForm(event, "/api/login", {
+            email: document.getElementById("signin-email").value,
+            password: document.getElementById("signin-password").value,
+        });
+    });
+}
+
+const signupForm = document.getElementById("signupForm");
+if (signupForm) {
+    signupForm.addEventListener("submit", (event) => {
+        const password = document.getElementById("signin-password").value;
+        const confirmation = document.getElementById("confirm-password").value;
+        if (password !== confirmation) {
+            event.preventDefault();
+            const message = signupForm.querySelector("[role='alert']");
+            message.textContent = "Passwords do not match.";
+            message.hidden = false;
+            return;
+        }
+        submitAccountForm(event, "/api/register", {
+            full_name: document.getElementById("signin-fullname").value,
+            email: document.getElementById("signin-email").value,
+            password,
+        });
+    });
+}
+
 const configurator = document.getElementById("investment-configurator");
 if (configurator) {
     configurator.addEventListener("submit", showRecommendations);
@@ -262,78 +315,8 @@ function toggleConfirmPasswordVisibility() {
     }
 }
 
-document.getElementById("signupForm")?.addEventListener("submit", signup);
-
-async function signup(event) {
+async function logout(event) {
     event.preventDefault();
-
-    const fullName = document.getElementById("signin-fullname").value;
-    const email = document.getElementById("signin-email").value;
-    const password = document.getElementById("signin-password").value;
-    const repeatPassword = document.getElementById("confirm-password").value;
-
-    if (password !== repeatPassword) {
-        console.error("Passwords do not match");
-        return;
-    }
-
-    console.log("Full name:", fullName);
-    console.log("Email:", email);
-    console.log("Password:", password);
-
-    const response = await fetch("/api/users", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            full_name: fullName,
-            email: email,
-            password: password
-        })
-    });
-
-    if (!response.ok) {
-        console.error("Failed to create account");
-        return;
-    }
-
-    const data = await response.json();
-
-    console.log("Server response:", data);
-}
-
-async function login(event) {
-    event.preventDefault();
-
-    const email = document.getElementById("signin-email").value;
-    const password = document.getElementById("signin-password").value;
-
-    const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: email,
-            password: password
-        })
-    });
-
-    if (!response.ok) {
-        console.error("Login failed");
-        return;
-    }
-
-    const data = await response.json();
-
-    console.log("Login successful:", data);
-
+    await fetch("/api/logout", { method: "POST" });
     window.location.href = "/";
-}
-
-const loginForm = document.getElementById("loginForm");
-
-if (loginForm) {
-    loginForm.addEventListener("submit", login);
 }
