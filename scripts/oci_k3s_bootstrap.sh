@@ -25,6 +25,11 @@ kubectl -n $NS create secret generic db-credentials \
 
 ./scripts/oci_k3s_deploy.sh
 
+# data/ CSVs are stored in Git LFS
+sudo apt-get install -y git-lfs
+git lfs install
+git lfs pull
+
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 uv sync --no-dev
