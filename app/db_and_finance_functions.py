@@ -440,38 +440,54 @@ def get_offer_by_variant_id(variant_id: int) -> dict[str, Any] | None:
 
 def get_user_by_email(email: str) -> dict[str, Any] | None:
     with _get_engine().connect() as connection:
-        row = connection.execute(
-            text(
-                "SELECT id, full_name, email, password_hash "
-                "FROM app_user WHERE email = :email"
-            ),
-            {"email": email},
-        ).mappings().first()
+        row = (
+            connection.execute(
+                text(
+                    "SELECT id, full_name, email, password_hash "
+                    "FROM app_user WHERE email = :email"
+                ),
+                {"email": email},
+            )
+            .mappings()
+            .first()
+        )
     return dict(row) if row is not None else None
 
 
 def get_user_state(user_id: int) -> dict[str, Any] | None:
     with _get_engine().connect() as connection:
-        row = connection.execute(
-            text("SELECT id, full_name, email FROM app_user WHERE id = :user_id"),
-            {"user_id": user_id},
-        ).mappings().first()
+        row = (
+            connection.execute(
+                text("SELECT id, full_name, email FROM app_user WHERE id = :user_id"),
+                {"user_id": user_id},
+            )
+            .mappings()
+            .first()
+        )
         if row is None:
             return None
-        favorites = connection.execute(
-            text(
-                "SELECT variant_id FROM user_favorite "
-                "WHERE user_id = :user_id ORDER BY created_at, variant_id"
-            ),
-            {"user_id": user_id},
-        ).scalars().all()
-        investments = connection.execute(
-            text(
-                "SELECT variant_id FROM user_investment "
-                "WHERE user_id = :user_id ORDER BY created_at, id"
-            ),
-            {"user_id": user_id},
-        ).scalars().all()
+        favorites = (
+            connection.execute(
+                text(
+                    "SELECT variant_id FROM user_favorite "
+                    "WHERE user_id = :user_id ORDER BY created_at, variant_id"
+                ),
+                {"user_id": user_id},
+            )
+            .scalars()
+            .all()
+        )
+        investments = (
+            connection.execute(
+                text(
+                    "SELECT variant_id FROM user_investment "
+                    "WHERE user_id = :user_id ORDER BY created_at, id"
+                ),
+                {"user_id": user_id},
+            )
+            .scalars()
+            .all()
+        )
     return {
         **dict(row),
         "favorites": list(favorites),
@@ -518,14 +534,18 @@ def toggle_user_favorite(user_id: int, variant_id: int) -> bool:
 
 def get_user_investments(user_id: int) -> list[dict[str, Any]]:
     with _get_engine().connect() as connection:
-        rows = connection.execute(
-            text(
-                "SELECT id, variant_id, amount, horizon_months, estimated_profit, "
-                "apy, start_date FROM user_investment "
-                "WHERE user_id = :user_id ORDER BY created_at, id"
-            ),
-            {"user_id": user_id},
-        ).mappings().all()
+        rows = (
+            connection.execute(
+                text(
+                    "SELECT id, variant_id, amount, horizon_months, estimated_profit, "
+                    "apy, start_date FROM user_investment "
+                    "WHERE user_id = :user_id ORDER BY created_at, id"
+                ),
+                {"user_id": user_id},
+            )
+            .mappings()
+            .all()
+        )
     return [dict(row) for row in rows]
 
 
@@ -551,22 +571,26 @@ def create_user_investment(
     apy: Decimal | None,
 ) -> dict[str, Any]:
     with _get_engine().begin() as connection:
-        row = connection.execute(
-            text(
-                "INSERT INTO user_investment "
-                "(user_id, variant_id, amount, horizon_months, estimated_profit, apy) "
-                "VALUES (:user_id, :variant_id, :amount, :horizon_months, "
-                ":estimated_profit, :apy) "
-                "RETURNING id, variant_id, amount, horizon_months, "
-                "estimated_profit, apy, start_date"
-            ),
-            {
-                "user_id": user_id,
-                "variant_id": variant_id,
-                "amount": amount,
-                "horizon_months": horizon_months,
-                "estimated_profit": estimated_profit,
-                "apy": apy,
-            },
-        ).mappings().one()
+        row = (
+            connection.execute(
+                text(
+                    "INSERT INTO user_investment "
+                    "(user_id, variant_id, amount, horizon_months, estimated_profit, apy) "
+                    "VALUES (:user_id, :variant_id, :amount, :horizon_months, "
+                    ":estimated_profit, :apy) "
+                    "RETURNING id, variant_id, amount, horizon_months, "
+                    "estimated_profit, apy, start_date"
+                ),
+                {
+                    "user_id": user_id,
+                    "variant_id": variant_id,
+                    "amount": amount,
+                    "horizon_months": horizon_months,
+                    "estimated_profit": estimated_profit,
+                    "apy": apy,
+                },
+            )
+            .mappings()
+            .one()
+        )
     return dict(row)

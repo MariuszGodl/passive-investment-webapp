@@ -286,7 +286,9 @@ async def register(account: CreateAccountRequest, request: Request):
 @router.post("/api/login", name="authenticate")
 async def authenticate(credentials: LoginRequest, request: Request):
     user = get_user_by_email(credentials.email.strip().lower())
-    if user is None or not _verify_password(credentials.password, user["password_hash"]):
+    if user is None or not _verify_password(
+        credentials.password, user["password_hash"]
+    ):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     request.session["user_id"] = user["id"]
     return {"user": get_user_state(user["id"])}
