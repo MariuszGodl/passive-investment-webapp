@@ -551,14 +551,18 @@ def get_user_investments(user_id: int) -> list[dict[str, Any]]:
 
 def get_user_investment(user_id: int, investment_id: int) -> dict[str, Any] | None:
     with _get_engine().connect() as connection:
-        row = connection.execute(
-            text(
-                "SELECT id, variant_id, amount, horizon_months, estimated_profit, "
-                "apy, start_date FROM user_investment "
-                "WHERE user_id = :user_id AND id = :investment_id"
-            ),
-            {"user_id": user_id, "investment_id": investment_id},
-        ).mappings().first()
+        row = (
+            connection.execute(
+                text(
+                    "SELECT id, variant_id, amount, horizon_months, estimated_profit, "
+                    "apy, start_date FROM user_investment "
+                    "WHERE user_id = :user_id AND id = :investment_id"
+                ),
+                {"user_id": user_id, "investment_id": investment_id},
+            )
+            .mappings()
+            .first()
+        )
     return dict(row) if row is not None else None
 
 
