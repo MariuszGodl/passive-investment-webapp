@@ -1,0 +1,17 @@
+# Exposes the webapp on port 80 via the Traefik ingress controller bundled with k3s.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webapp
+  namespace: passive-investment
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: webapp
+                port:
+                  number: 8000

@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -22,11 +25,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # imagetools copies the whole multi-arch manifest (docker pull/tag/push would keep only one arch)
       - name: Shift current image to prev
         run: |
-          docker pull godlewskimariusz/passive-investment-webapp:current || true
-          docker tag godlewskimariusz/passive-investment-webapp:current godlewskimariusz/passive-investment-webapp:prev || true
-          docker push godlewskimariusz/passive-investment-webapp:prev || true
+          docker buildx imagetools create \
+            -t godlewskimariusz/passive-investment-webapp:prev \
+            godlewskimariusz/passive-investment-webapp:current || true
 
       - name: Extract metadata
         id: meta
@@ -42,6 +46,7 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile.passive-investment-app
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
