@@ -21,7 +21,7 @@ kubectl -n $NS create secret generic db-credentials \
     --from-literal=POSTGRES_USER=app \
     --from-literal=POSTGRES_PASSWORD="$PW" \
     --from-literal=POSTGRES_DB=passive_investment \
-    --from-literal=DATABASE_URL="postgresql://app:$PW@postgres:5432/passive_investment"
+    --from-literal=DATABASE_URL="postgresql+psycopg2://app:$PW@postgres:5432/passive_investment"
 
 ./scripts/oci_k3s_deploy.sh
 
@@ -30,5 +30,5 @@ export PATH="$HOME/.local/bin:$PATH"
 uv sync --no-dev
 kubectl -n $NS port-forward svc/postgres 15432:5432 >/dev/null &
 sleep 3
-DATABASE_URL="postgresql://app:$PW@localhost:15432/passive_investment" uv run python scripts/init_dev_db.py
+DATABASE_URL="postgresql+psycopg2://app:$PW@localhost:15432/passive_investment" uv run python scripts/init_dev_db.py
 kill %1
