@@ -15,5 +15,5 @@ if [ -z "${1:-}" ]; then
 fi
 kubectl -n $NS rollout status deployment/postgres --timeout=300s
 kubectl -n $NS rollout status deployment/webapp --timeout=300s
-kubectl -n $NS exec deploy/webapp -- sh -c "cd db && uv run C--no-sync alembic upgrade head"
+kubectl -n $NS exec deploy/webapp -- sh -c "cd db && uv run --no-sync alembic upgrade head"
 kubectl -n $NS get pods
