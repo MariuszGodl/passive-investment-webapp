@@ -13,6 +13,7 @@ sudo iptables -D FORWARD -j REJECT --reject-with icmp-host-prohibited || true
 sudo netfilter-persistent save
 
 curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 kubectl wait --for=condition=ready node --all --timeout=180s
 
 PW=$(openssl rand -hex 16)

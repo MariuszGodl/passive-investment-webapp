@@ -4,6 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 NS=passive-investment
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 IMAGE=${1:-godlewskimariusz/passive-investment-webapp:latest}
 
 git pull --ff-only
