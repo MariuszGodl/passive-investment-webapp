@@ -18,8 +18,8 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 until kubectl get nodes -o name 2>/dev/null | grep -q node/; do sleep 2; done
 kubectl wait --for=condition=ready node --all --timeout=180s
 
-PW=$(openssl rand -hex 16)
 kubectl apply -f k8s/namespace.yml
+PW=$(openssl rand -hex 16)
 kubectl -n $NS create secret generic db-credentials \
     --from-literal=POSTGRES_USER=app \
     --from-literal=POSTGRES_PASSWORD="$PW" \
